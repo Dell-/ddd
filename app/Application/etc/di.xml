@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<di>
+    <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
+    <interface name="Core\Config\ReaderInterface" class="Core\Di\Config\Xml\Reader"/>
+    <interface name="Core\Config\ConverterInterface" class="Core\Di\Config\Xml\Converter"/>
+    <interface name="Core\Di\ContainerInterface" class="Core\Di\Container"/>
+    <instance class="Core\Di\Config\Xml\Reader">
+        <argument name="routerConfigReader">
+            <string>/Application</string>
+        </argument>
+    </instance>
+</di>
