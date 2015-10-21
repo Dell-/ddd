@@ -1,7 +1,7 @@
 <?php
 namespace Core\Config\Xml;
 
-use Core\Filesystem\File;
+use Core\Filesystem\Reader;
 use Core\Config\ReaderInterface;
 use Core\Filesystem\Content\Xml\Dom\Merger;
 
@@ -13,9 +13,9 @@ abstract class AbstractReader implements ReaderInterface
     const ROOT_NAME = 'config';
 
     /**
-     * @var File
+     * @var Reader
      */
-    protected $file;
+    protected $filesystemReader;
 
     /**
      * @var Merger
@@ -31,12 +31,12 @@ abstract class AbstractReader implements ReaderInterface
      * Constructor
      *
      * @param string $directory
-     * @param File $file
+     * @param Reader $filesystemReader
      * @param Merger $merger
      */
-    public function __construct($directory, File $file, Merger $merger)
+    public function __construct($directory, Reader $filesystemReader, Merger $merger)
     {
-        $this->file = $file;
+        $this->filesystemReader = $filesystemReader;
         $this->merger = $merger;
         $this->directory = $directory;
     }

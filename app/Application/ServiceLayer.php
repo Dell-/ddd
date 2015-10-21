@@ -8,8 +8,11 @@
 
 namespace Application;
 
-
-class ServiceLayer {
+/**
+ * Class ServiceLayer
+ */
+class ServiceLayer
+{
     /**
      * @param null $routerConfigReader
      * @param null $diConfigReader

@@ -4,7 +4,7 @@ namespace Core\Di\Config\Argument;
 /**
  * Class TypeFactory
  */
-class TypeFactory
+class TypeFactory implements TypeFactoryInterface
 {
     /**
      * @var array
@@ -24,9 +24,7 @@ class TypeFactory
     protected $instances;
 
     /**
-     * @param string $type
-     * @return TypeConverterInterface
-     * @throws \Exception
+     * @inheritdoc
      */
     public function create($type)
     {

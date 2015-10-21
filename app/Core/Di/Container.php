@@ -31,6 +31,7 @@ class Container implements ContainerInterface
      */
     public function __construct(ReaderInterface $reader, ConverterInterface $converter)
     {
+        $this->shared[$this->getClassName(get_class($this))] = $this;
         $this->instances = $converter->convert($reader);
     }
 
@@ -39,11 +40,16 @@ class Container implements ContainerInterface
      */
     public function get($className)
     {
-        $className = trim($className, '\\');
+        $className = $this->getClassName($className);
+
+        if (isset($this->instances[$className])) {
+            $className = $this->instances[$className]->getClass();
+        }
 
         if (isset($this->shared[$className])) {
             return $this->shared[$className];
         }
+
         $this->shared[$className] = $this->create($className);
 
         return $this->shared[$className];
@@ -54,7 +60,7 @@ class Container implements ContainerInterface
      */
     public function create($className, array $arguments = [])
     {
-        $className = trim($className, '\\');
+        $className = $this->getClassName($className);
 
         if (isset($this->instances[$className])) {
             $object = $this->createInstance(
@@ -72,6 +78,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Compile the object
+     *
      * @param array $arguments
      * @return array
      */
@@ -134,7 +142,7 @@ class Container implements ContainerInterface
 
             $classReflection = $argument->getClass();
             if ($classReflection !== null && $isDefaultValue === false) {
-                $value = $this->create($classReflection->getName());
+                $value = $this->get($classReflection->getName());
             } else {
                 $value = $defaultValue;
             }
@@ -142,5 +150,21 @@ class Container implements ContainerInterface
         }
 
         return $creationArguments;
+    }
+
+    /**
+     * Check the class name
+     *
+     * @param string $className
+     * @return string
+     * @throws \Exception
+     */
+    private function getClassName($className)
+    {
+        if (!is_string($className)) {
+            throw new \Exception('Wrong type class name.');
+        }
+
+        return trim($className, '\\');
     }
 }

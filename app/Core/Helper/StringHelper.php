@@ -6,6 +6,8 @@ namespace Core\Helper;
  */
 class StringHelper
 {
+    const HASH_VER = 'v-0.0.0.1';
+
     /**
      * Generate a CRC32 hash for the input string
      *
@@ -14,7 +16,7 @@ class StringHelper
      */
     public static function hash($string)
     {
-        return sprintf('%x', crc32($string . \Bootstrap::getVersion()));
+        return sprintf('%x', crc32($string . self::HASH_VER));
     }
 
     /**

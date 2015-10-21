@@ -1,40 +1,135 @@
 <?php
 namespace Core\Filesystem;
 
-use Core\Helper\FilesystemHelper;
-
 /**
  * Class File
  */
-class File
+class File implements FileInterface
 {
     /**
-     * Read data
-     *
-     * @param array $path
-     * @param IteratorFactoryInterface $iteratorFactory
-     * @return array
-     * @throws \Exception
+     * @var \SplFileInfo
      */
-    public function read(array $path, IteratorFactoryInterface $iteratorFactory)
-    {
-        $result = [];
-        foreach ($path as $item) {
-            $directory = new \RecursiveDirectoryIterator(FilesystemHelper::normalizePath($item));
-            $directory->setFlags(\RecursiveDirectoryIterator::SKIP_DOTS);
-            $filesPath = array_keys(
-                iterator_to_array(
-                    $iteratorFactory->create(new \RecursiveIteratorIterator($directory))
-                )
-            );
-            foreach ($filesPath as $filePath) {
-                if (!is_readable($filePath)) {
-                    throw new \Exception("The file '{$filePath}' cannot be read.");
-                }
-                $result[$filePath] = file_get_contents($filePath);
-            }
-        }
+    private $file;
 
-        return $result;
+    /**
+     * Constructor
+     *
+     * @param \SplFileInfo $file
+     */
+    public function __construct(\SplFileInfo $file)
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isReadable()
+    {
+        return $this->file->isReadable();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isWritable()
+    {
+        return $this->file->isWritable();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isExecutable()
+    {
+        return $this->file->isExecutable();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSize()
+    {
+        return $this->file->getSize();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPathname()
+    {
+        return $this->file->getPathname();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPath()
+    {
+        return $this->file->getPath();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPerms()
+    {
+        return $this->file->getPerms();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOwner()
+    {
+        return $this->file->getOwner();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getGroup()
+    {
+        return $this->file->getGroup();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMTime()
+    {
+        return $this->file->getMTime();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCTime()
+    {
+        return $this->file->getCTime();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getATime()
+    {
+        return $this->file->getATime();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFilename()
+    {
+        return $this->file->getFilename();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getExtension()
+    {
+        return $this->file->getExtension();
     }
 }

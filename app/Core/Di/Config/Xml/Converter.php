@@ -4,7 +4,7 @@ namespace Core\Di\Config\Xml;
 use Core\Di\InstanceClass;
 use Core\Config\ReaderInterface;
 use Core\Config\ConverterInterface;
-use Core\Di\Config\Argument\TypeFactory;
+use Core\Di\Config\Argument\TypeFactoryInterface;
 use Core\Di\Config\Xml\Reader as DiReader;
 
 /**
@@ -19,7 +19,7 @@ class Converter implements ConverterInterface
     const ARGUMENT_ITEM = 'argument';
 
     /**
-     * @var TypeFactory
+     * @var TypeFactoryInterface
      */
     protected $typeFactory;
 
@@ -31,9 +31,9 @@ class Converter implements ConverterInterface
     /**
      * Constructor
      *
-     * @param TypeFactory $typeFactory
+     * @param TypeFactoryInterface $typeFactory
      */
-    public function __construct(TypeFactory $typeFactory)
+    public function __construct(TypeFactoryInterface $typeFactory)
     {
         $this->typeFactory = $typeFactory;
     }

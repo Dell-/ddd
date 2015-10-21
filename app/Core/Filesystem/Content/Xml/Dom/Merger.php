@@ -14,7 +14,7 @@ class Merger
     protected $idAttributes = ['name'];
 
     /**
-     * @var \DomDocument
+     * @var \DOMDocument
      */
     protected $domDocument;
 
@@ -40,16 +40,6 @@ class Merger
     {
         $this->domFactory = new Factory();
         $this ->xPathFactory = new XPathFactory();
-    }
-
-    /**
-     * Set id attributes
-     *
-     * @param array $idAttributes
-     */
-    public function setIdAttributes($idAttributes)
-    {
-        $this->idAttributes = $idAttributes;
     }
 
     /**
@@ -89,7 +79,7 @@ class Merger
     /**
      * Get DOM document
      *
-     * @return \DomDocument
+     * @return \DOMDocument
      */
     public function getDOMDocument()
     {
@@ -230,7 +220,7 @@ class Merger
     protected function isTextNode(\DOMNode $node)
     {
         return $node->hasChildNodes()
-        && $node->childNodes->length === 1
-        && $node->childNodes->item(0) instanceof \DOMText;
+            && $node->childNodes->length === 1
+            && $node->childNodes->item(0) instanceof \DOMText;
     }
 }

@@ -22,16 +22,6 @@ defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 class Bootstrap
 {
     /**
-     * Returns a string representing the current version
-     *
-     * @return string
-     */
-    public static function getVersion()
-    {
-        return 'dev-0.1';
-    }
-
-    /**
      * Create application
      *
      * @return ServiceInterface
@@ -40,8 +30,11 @@ class Bootstrap
     {
         $container = new \Core\Di\Container(
             new \Core\Di\Config\Xml\Reader(
-                '/Application',
-                new \Core\Filesystem\File(),
+                '/Application/etc',
+                new \Core\Filesystem\Reader(
+                    '#di\.xml$#',
+                    new \Core\Filesystem\FileCollector(new \Core\Filesystem\IteratorFactory())
+                ),
                 new \Core\Filesystem\Content\Xml\Dom\Merger()
             ),
             new \Core\Di\Config\Xml\Converter(
