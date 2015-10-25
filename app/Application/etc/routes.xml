@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<routes>
-    <route method="" path="/" action="Application\Action\Index" />
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Core/Route/etc/routes.xsd">
+    <route method="GET" path="/" action="Application\Action\Index"/>
 </routes>
