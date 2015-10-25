@@ -2,9 +2,9 @@
 namespace Core\Filesystem;
 
 /**
- * Class FileCollector
+ * Class DirectoryCollector
  */
-class FileCollector implements FileCollectorInterface
+class DirectoryCollector implements DirectoryCollectorInterface
 {
     /**
      * Iterator factory
@@ -35,14 +35,14 @@ class FileCollector implements FileCollectorInterface
      */
     public function collect(DirectoryInterface $directory)
     {
-        $files = [];
+        $directories = [];
         $iterator = $this->iteratorFactory->create($directory->getPathname());
-        foreach ($this->filterIterator->filter($iterator) as $key => $file) {
-            if ($file->isFile()) {
-                $files[$key] = new File($file);
+        foreach ($this->filterIterator->filter($iterator) as $key => $innerDirectory) {
+            if ($innerDirectory->isDir()) {
+                $directories[$key] = new Directory($innerDirectory);
             }
         }
 
-        return $files;
+        return $directories;
     }
 }

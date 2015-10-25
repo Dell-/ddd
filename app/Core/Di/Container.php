@@ -1,21 +1,11 @@
 <?php
 namespace Core\Di;
 
-use Core\Config\ReaderInterface;
-use Core\Config\ConverterInterface;
-
 /**
  * Class Container
  */
 class Container implements ContainerInterface
 {
-    /**
-     * Instances of classes
-     *
-     * @var InstanceClass[]
-     */
-    private $instances = [];
-
     /**
      * Shared instances of classes
      *
@@ -24,15 +14,21 @@ class Container implements ContainerInterface
     private $shared = [];
 
     /**
+     * Container configuration
+     *
+     * @var Config
+     */
+    private $config;
+
+    /**
      * Constructor
      *
-     * @param ReaderInterface $reader
-     * @param ConverterInterface $converter
+     * @param Config $config
      */
-    public function __construct(ReaderInterface $reader, ConverterInterface $converter)
+    public function __construct(Config $config)
     {
+        $this->config = $config;
         $this->shared[$this->getClassName(get_class($this))] = $this;
-        $this->instances = $converter->convert($reader);
     }
 
     /**
@@ -42,8 +38,8 @@ class Container implements ContainerInterface
     {
         $className = $this->getClassName($className);
 
-        if (isset($this->instances[$className])) {
-            $className = $this->instances[$className]->getClass();
+        if ($this->config->hasInstance($className)) {
+            $className = $this->config->getInstance($className)->getClass();
         }
 
         if (isset($this->shared[$className])) {
@@ -62,12 +58,13 @@ class Container implements ContainerInterface
     {
         $className = $this->getClassName($className);
 
-        if (isset($this->instances[$className])) {
+        if ($this->config->hasInstance($className)) {
+            $instanceClass = $this->config->getInstance($className);
             $object = $this->createInstance(
-                new \ReflectionClass($this->instances[$className]->getClass()),
-                array_merge($this->compileObject($this->instances[$className]->getArguments()), $arguments)
+                new \ReflectionClass($instanceClass->getClass()),
+                array_merge($this->compileObjectArguments($instanceClass->getArguments()), $arguments)
             );
-            if ($this->instances[$className]->isShared()) {
+            if ($instanceClass->isShared()) {
                 $this->shared[$className] = $object;
             }
 
@@ -83,7 +80,7 @@ class Container implements ContainerInterface
      * @param array $arguments
      * @return array
      */
-    private function compileObject(array $arguments)
+    private function compileObjectArguments(array $arguments)
     {
         foreach ($arguments as &$argument) {
             if ($argument instanceof InstanceClass) {
@@ -95,7 +92,7 @@ class Container implements ContainerInterface
             }
 
             if (is_array($argument)) {
-                $argument = $this->compileObject($argument);
+                $argument = $this->compileObjectArguments($argument);
             }
         }
         unset($argument);

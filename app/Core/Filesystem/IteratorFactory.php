@@ -25,16 +25,10 @@ class IteratorFactory
      * Create files iterator
      *
      * @param string $path
-     * @param string $pattern
-     * @return \IteratorIterator
+     * @return \FilesystemIterator
      */
-    public function create($path, $pattern)
+    public function create($path)
     {
-        return new \RegexIterator(
-            new \FilesystemIterator($path, $this->flags),
-            $pattern,
-            \RegexIterator::MATCH,
-            \RegexIterator::USE_KEY
-        );
+        return new \FilesystemIterator($path, $this->flags);
     }
 }

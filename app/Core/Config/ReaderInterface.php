@@ -6,12 +6,8 @@ namespace Core\Config;
  */
 interface ReaderInterface
 {
-    const ATTRIBUTES = '@attributes';
-
-    const VALUE = '@value';
-
     /**
-     * @return array
+     * @return \DOMDocument
      */
     public function read();
 }

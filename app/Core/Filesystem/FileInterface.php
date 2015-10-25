@@ -21,6 +21,8 @@ interface FileInterface
     public function isWritable();
 
     /**
+     * Tells if the file is executable
+     *
      * @return bool
      */
     public function isExecutable();

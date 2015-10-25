@@ -1,16 +1,14 @@
 <?php
 namespace Core\Config;
 
-use Core\Config\ReaderInterface;
-
 /**
  * Interface ConverterInterface
  */
 interface ConverterInterface
 {
     /**
-     * @param ReaderInterface $reader
+     * @param \DOMDocument $document
      * @return array
      */
-    public function convert(ReaderInterface $reader);
+    public function convert(\DOMDocument $document);
 }

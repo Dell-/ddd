@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <di xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Core/Di/etc/di.xsd">
-    <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
-    <interface name="Core\Config\ReaderInterface" class="Core\Di\Config\Xml\Reader"/>
-    <interface name="Core\Config\ConverterInterface" class="Core\Di\Config\Xml\Converter"/>
     <interface name="Core\Di\ContainerInterface" class="Core\Di\Container"/>
-    <interface name="Core\Di\Config\Argument\TypeFactoryInterface" class="Core\Di\Config\Argument\TypeFactory"/>
+    <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
     <instance class="Core\Di\Container" shared="true"/>
 </di>
