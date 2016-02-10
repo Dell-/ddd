@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="di" type="di"/>
+    <xs:complexType name="di">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="interface" type="interface"/>
+            <xs:element name="instance" type="instance"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="interface">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="instance">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="argument" type="argument"/>
+        </xs:choice>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+        <xs:attribute name="shared" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="argument">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="string" type="xs:string"/>
+            <xs:element name="object" type="object"/>
+            <xs:element name="array" type="array"/>
+            <xs:element name="float" type="xs:decimal"/>
+            <xs:element name="int" type="xs:int"/>
+            <xs:element name="bool" type="xs:boolean"/>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="object">
+        <xs:complexContent>
+            <xs:extension base="instance"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="array">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="item" type="item"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="item">
+        <xs:complexContent>
+            <xs:extension base="argument"/>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>
