@@ -1,9 +1,10 @@
 <?php
-namespace Core\Request\Cli;
+namespace Core\Request\Http;
 
-use Core\Request\RequestInterface;
-
-class Argument implements RequestInterface
+/**
+ * Class Argument
+ */
+class Argument implements \Core\Request\RequestInterface
 {
     /**
      * @var array

@@ -71,7 +71,37 @@ class Container implements ContainerInterface
             return $object;
         }
 
+        // Default - Object is not shared
         return $this->createInstance(new \ReflectionClass($className), $arguments);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function callMethod($object, $methodName, array $arguments = [])
+    {
+        if (!is_object($object)) {
+            throw new \InvalidArgumentException('$object argument must be Object type.');
+        }
+
+        $classReflection = new \ReflectionClass($object);
+        if ($classReflection->hasMethod($methodName)) {
+            throw new \InvalidArgumentException(
+                get_class($object) . '::' . $methodName . '() method does not exists.'
+            );
+        }
+
+        $method = $classReflection->getMethod($methodName);
+        if (!$method->isPublic()) {
+            throw new \InvalidArgumentException(
+                get_class($object) . '::' . $methodName . '() method must be public.'
+            );
+        }
+
+        $method = $classReflection->getMethod('__construct');
+        $arguments = $this->prepareArguments($method->getParameters(), $arguments);
+
+        return $object->$methodName(...array_values($arguments));
     }
 
     /**

@@ -10,6 +10,11 @@ use Core\Service\ServiceInterface;
 final class Service implements ServiceInterface
 {
     /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
      * Constructor
      *
      * @param ContainerInterface $container
@@ -24,6 +29,11 @@ final class Service implements ServiceInterface
      */
     public function run()
     {
-        echo sprintf('time: %f sec', microtime(true) - BEGIN_TIME);
+
+        echo sprintf(
+            'time: %f sec; memory: %d kb',
+            microtime(true) - BEGIN_TIME,
+            memory_get_usage() / 1024
+        );
     }
 }

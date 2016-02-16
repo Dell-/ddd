@@ -48,10 +48,10 @@ class Bootstrap
             )
         );
 
-        return $container->create('Core\Service\ServiceInterface');
+        return $container->create(\Core\Service\ServiceInterface::class);
     }
 }
 
 require_once BP . '/Core/Autoloader.php';
 
-spl_autoload_register(['Core\Autoloader', 'autoload'], true, true);
+spl_autoload_register([\Core\Autoloader::class, 'autoload'], true, true);

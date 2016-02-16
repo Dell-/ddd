@@ -22,4 +22,14 @@ interface ContainerInterface
      * @return mixed
      */
     public function create($className, array $arguments = []);
+
+    /**
+     * Call object method in container
+     *
+     * @param Object $object
+     * @param string $methodName
+     * @param array $arguments
+     * @return mixed
+     */
+    public function callMethod($object, $methodName, array $arguments = []);
 }
