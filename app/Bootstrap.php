@@ -28,11 +28,20 @@ class Bootstrap
      */
     public static function createApplication()
     {
+
+
         $container = new \Core\Di\Container(
             new \Core\Di\Config(
+
+
+
+
                 new \Core\Config\Xml\Reader(
+
                     BP . '/Application/etc',
+
                     new \Core\Filesystem\DirectoryFactory(),
+
                     new \Core\Filesystem\FileReader(),
                     new \Core\Filesystem\FileCollector(
                         new \Core\Filesystem\IteratorFactory(),

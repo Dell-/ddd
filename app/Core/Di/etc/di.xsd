@@ -17,6 +17,7 @@
         </xs:choice>
         <xs:attribute name="class" type="xs:string" use="required"/>
         <xs:attribute name="shared" type="xs:boolean" use="optional"/>
+        <xs:attribute name="virtualClass" type="xs:boolean" use="optional"/>
     </xs:complexType>
     <xs:complexType name="argument">
         <xs:choice minOccurs="1" maxOccurs="unbounded">

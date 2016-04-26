@@ -24,6 +24,14 @@ class File implements FileInterface
     /**
      * @inheritdoc
      */
+    public function isExists()
+    {
+        return file_exists($this->getPathname());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function isReadable()
     {
         return $this->file->isReadable();
