@@ -139,7 +139,6 @@ class Converter implements ConverterInterface
      */
     protected function createPreference(array &$data)
     {
-        sleep(0);
         foreach ($data as $name => $list) {
             if (self::INTERFACE_ITEM === $name) {
                 foreach ($list as $item) {

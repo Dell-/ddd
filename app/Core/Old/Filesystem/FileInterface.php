@@ -7,13 +7,6 @@ namespace Core\Filesystem;
 interface FileInterface
 {
     /**
-     * Returns true if the file is exists, otherwise false
-     *
-     * @return bool
-     */
-    public function isExists();
-
-    /**
      * Returns true if the file is readable, otherwise false
      *
      * @return bool

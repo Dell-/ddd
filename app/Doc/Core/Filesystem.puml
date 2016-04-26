@@ -1,0 +1,41 @@
+@startuml
+interface FilesystemInterface {
+    + getPermissions(): int
+    + isReadable(): bool
+    + isWritable(): bool
+    + getBasename(suffix: string): string
+    + getPathname(): string
+    + getRealPath(): string|bool
+    + getName(): string
+}
+
+interface FileInterface {
+    + read(length: int): string
+    + write(content: string, length: int): int
+    + getSize(): int
+    + getPath(): string
+}
+
+interface DirectoryInterface {
+    + read(): FileInterface
+    + write(file: FileInterface): bool
+}
+
+class FileCollection {
+    - files: FileInterface[]
+}
+class DirectoryCollection {
+    - directories: DirectoryInterface[]
+}
+class File
+class Directory
+
+DirectoryInterface --|> FilesystemInterface
+FileInterface --|> FilesystemInterface
+
+File ..|> FileInterface
+Directory ..|> DirectoryInterface
+
+FileCollection "0..*" o-- FileInterface
+DirectoryCollection "0..*" o-- DirectoryInterface
+@enduml
