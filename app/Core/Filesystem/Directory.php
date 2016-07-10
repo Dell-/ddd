@@ -18,6 +18,9 @@ class Directory implements DirectoryInterface
      */
     public function __construct(\SplFileInfo $directory)
     {
+        if (!$directory->isDir()) {
+            throw new \InvalidArgumentException('This object must indicate to a directory.');
+        }
         $this->directory = $directory;
     }
 

@@ -18,6 +18,9 @@ class File implements FileInterface
      */
     public function __construct(\SplFileInfo $file)
     {
+        if (!$file->isFile()) {
+            throw new \InvalidArgumentException('This object must indicate to a file.');
+        }
         $this->file = $file;
     }
 

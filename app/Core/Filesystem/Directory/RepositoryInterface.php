@@ -16,7 +16,6 @@ interface RepositoryInterface
 
     /**
      * @param DirectoryInterface $directory
-     * @param DirectoryInterface $context
      * @return bool
      */
     public function delete(DirectoryInterface $directory);

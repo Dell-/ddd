@@ -9,39 +9,13 @@ use Core\Filesystem\FileInterface;
 class Reader implements ReaderInterface
 {
     /**
-     * @var int
-     */
-    private $maxLen;
-
-    /**
-     * @var int
-     */
-    private $offset;
-
-    /**
-     * @inheritdoc
-     */
-    public function setMaxLen($maxLen)
-    {
-        $this->maxLen = (int) $maxLen;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setOffset($offset)
-    {
-        $this->offset = (int) $offset;
-    }
-
-    /**
      * @inheritdoc
      */
     public function read(FileInterface $file)
     {
         $content = false;
         if ($file->isReadable()) {
-            $content = file_get_contents($file->getPathname(), null, null, $this->offset, $this->maxLen);
+            $content = file_get_contents($file->getPathname());
         }
 
         if ($content === false) {

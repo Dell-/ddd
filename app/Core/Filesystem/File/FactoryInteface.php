@@ -9,7 +9,8 @@ use Core\Filesystem\FileInterface;
 interface FactoryInteface
 {
     /**
+     * @param string $filename
      * @return FileInterface
      */
-    public function create();
+    public function create($filename);
 }

@@ -18,6 +18,10 @@ class Factory
      */
     public function create($xmlContent)
     {
+        if (empty($xmlContent)) {
+            throw new \InvalidArgumentException('XML document cannot be empty.');
+        }
+
         $domDocument = new \DOMDocument(static::XML_VERSION, static::XML_ENCODING);
         $domDocument->loadXML($xmlContent);
 

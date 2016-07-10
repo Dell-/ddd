@@ -1,21 +1,18 @@
 <?php
 namespace Core\Filesystem\Directory;
 
-use Core\CollectionInterface;
 use Core\Filesystem\DirectoryInterface;
+use Core\Filesystem\FilterInterface;
 
 /**
  * Interface ReaderInterface
  */
 interface ReaderInterface
 {
-    const FILE_TYPE = 1;
-
-    const DIRECTORY_TYPE = 2;
-
     /**
      * @param DirectoryInterface $directory
-     * @return CollectionInterface
+     * @param FilterInterface $filter
+     * @return DirectoryInterface[]
      */
-    public function read(DirectoryInterface $directory);
+    public function read(DirectoryInterface $directory, FilterInterface $filter = null);
 }

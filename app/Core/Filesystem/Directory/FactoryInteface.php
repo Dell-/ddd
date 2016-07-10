@@ -9,7 +9,8 @@ use Core\Filesystem\DirectoryInterface;
 interface FactoryInteface
 {
     /**
+     * @param string $name
      * @return DirectoryInterface
      */
-    public function create();
+    public function create($name);
 }

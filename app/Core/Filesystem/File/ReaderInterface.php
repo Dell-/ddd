@@ -9,16 +9,6 @@ use Core\Filesystem\FileInterface;
 interface ReaderInterface
 {
     /**
-     * @param int $maxLen
-     */
-    public function setMaxLen($maxLen);
-
-    /**
-     * @param int $offset
-     */
-    public function setOffset($offset);
-
-    /**
      * Read file
      *
      * @param FileInterface $file

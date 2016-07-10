@@ -32,23 +32,11 @@ class Bootstrap
 
         $container = new \Core\Di\Container(
             new \Core\Di\Config(
-
-
-
-
                 new \Core\Config\Xml\Reader(
-
                     BP . '/Application/etc',
-
-                    new \Core\Filesystem\DirectoryFactory(),
-
-                    new \Core\Filesystem\FileReader(),
-                    new \Core\Filesystem\FileCollector(
-                        new \Core\Filesystem\IteratorFactory(),
-                        new \Core\Filesystem\FilterIterator(
-                            '#di\.xml$#'
-                        )
-                    ),
+                    new \Core\Filesystem\Directory\Factory(),
+                    new \Core\Filesystem\IteratorFactory(),
+                    new \Core\Filesystem\File\Reader(),
                     new \Core\Filesystem\Content\Xml\Dom\Merger()
                 ),
                 new \Core\Di\Config\Xml\Converter(
