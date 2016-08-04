@@ -28,8 +28,6 @@ class Bootstrap
      */
     public static function createApplication()
     {
-
-
         $container = new \Core\Di\Container(
             new \Core\Di\Config(
                 new \Core\Config\Xml\Reader(
