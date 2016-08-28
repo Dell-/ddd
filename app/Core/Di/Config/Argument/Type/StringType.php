@@ -2,7 +2,7 @@
 namespace Core\Di\Config\Argument\Type;
 
 use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Reader as DiReader;
+use Core\Di\Config\Xml\Converter;
 
 /**
  * Class StringType
@@ -15,6 +15,6 @@ class StringType extends AbstractType implements TypeConverterInterface
      */
     public function convert(array $node)
     {
-        return (string) $node[DiReader::VALUE];
+        return (string) $node[Converter::VALUE];
     }
 }

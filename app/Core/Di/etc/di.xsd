@@ -14,10 +14,17 @@
     <xs:complexType name="instance">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="argument" type="argument"/>
+            <xs:element name="callback" type="callback"/>
         </xs:choice>
         <xs:attribute name="class" type="xs:string" use="required"/>
         <xs:attribute name="shared" type="xs:boolean" use="optional"/>
         <xs:attribute name="virtualClass" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="callback">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="argument" type="argument"/>
+        </xs:choice>
+        <xs:attribute name="method" type="xs:string" use="required"/>
     </xs:complexType>
     <xs:complexType name="argument">
         <xs:choice minOccurs="1" maxOccurs="unbounded">

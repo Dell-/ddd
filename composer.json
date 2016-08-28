@@ -1,0 +1,14 @@
+{
+    "name": "game",
+    "keywords": [
+        "shell",
+        "console"
+    ],
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0",
+        "monolog/monolog": "~1.21"
+    },
+    "require-dev": {}
+}

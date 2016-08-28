@@ -1,9 +1,9 @@
 <?php
 namespace Core\Di\Config\Xml;
 
+use Core\Di\Config\Argument\Service;
 use Core\Di\InstanceClass;
 use Core\Config\ConverterInterface;
-use Core\Di\Config\Argument\TypeFactoryInterface;
 
 /**
  * Class Converter
@@ -16,6 +16,8 @@ class Converter implements ConverterInterface
 
     const ARGUMENT_ITEM = 'argument';
 
+    const CALLBACK_ITEM = 'callback';
+
     const ROOT_ITEM = 'config';
 
     const ATTRIBUTES = '@attributes';
@@ -23,23 +25,23 @@ class Converter implements ConverterInterface
     const VALUE = '@value';
 
     /**
-     * @var TypeFactoryInterface
+     * @var Service
      */
-    protected $typeFactory;
+    private $service;
 
     /**
      * @var InstanceClass[]
      */
-    protected $convertedData = [];
+    private $convertedData = [];
 
     /**
      * Constructor
      *
-     * @param TypeFactoryInterface $typeFactory
+     * @param Service $service
      */
-    public function __construct(TypeFactoryInterface $typeFactory)
+    public function __construct(Service $service)
     {
-        $this->typeFactory = $typeFactory;
+        $this->service = $service;
     }
 
     /**
@@ -62,7 +64,7 @@ class Converter implements ConverterInterface
      * @param \DOMNode $node
      * @param array $data
      */
-    protected function toArray(\DOMNode $node, array &$data)
+    private function toArray(\DOMNode $node, array &$data)
     {
         switch ($node->nodeType) {
             case XML_TEXT_NODE:
@@ -103,31 +105,30 @@ class Converter implements ConverterInterface
      * @param array $data
      * @throws \Exception
      */
-    protected function createInstance(array &$data)
+    private function createInstance(array &$data)
     {
         foreach ($data as $name => $list) {
             if (self::INSTANCE_ITEM === $name) {
                 foreach ($list as $item) {
                     $class = trim($item[self::ATTRIBUTES]['class'], '\\');
-                    $instanceArguments = [];
-                    $arguments = isset($item['argument']) ? $item['argument'] : [];
-                    foreach ($arguments as $argument) {
-                        $attributes = $argument[self::ATTRIBUTES];
-                        unset($argument[self::ATTRIBUTES]);
-                        $type = key($argument);
-                        $argument = reset($argument);
-                        $argument = reset($argument);
-                        $instanceArguments[$attributes['name']] = $this->typeFactory->create($type)
-                            ->convert($argument);;
-                    }
+
                     $container = new InstanceClass(
                         $class,
                         $class,
-                        $instanceArguments,
+                        $this->service->createArguments(isset($item['argument']) ? $item['argument'] : []),
                         isset($item[self::ATTRIBUTES]['shared'])
                             ? $item[self::ATTRIBUTES]['shared'] === 'true'
                             : false
                     );
+
+                    foreach (isset($item[self::CALLBACK_ITEM]) ? $item[self::CALLBACK_ITEM] : [] as $callback) {
+                        $method = trim($callback[self::ATTRIBUTES]['method']);
+                        $container->addCallback(
+                            $method,
+                            $this->service->createArguments(isset($callback['argument']) ? $callback['argument'] : [])
+                        );
+                    }
+
                     $this->convertedData[$container->getId()] = $container;
                 }
             }
@@ -137,7 +138,7 @@ class Converter implements ConverterInterface
     /**
      * @param array $data
      */
-    protected function createPreference(array &$data)
+    private function createPreference(array &$data)
     {
         foreach ($data as $name => $list) {
             if (self::INTERFACE_ITEM === $name) {

@@ -2,7 +2,7 @@
 namespace Core\Di\Config\Argument\Type;
 
 use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Reader as DiReader;
+use Core\Di\Config\Xml\Converter;
 
 /**
  * Class BoolType
@@ -15,6 +15,6 @@ class BoolType extends AbstractType implements TypeConverterInterface
      */
     public function convert(array $node)
     {
-        return $node[DiReader::VALUE] === 'true' || $node[DiReader::VALUE] === '1';
+        return $node[Converter::VALUE] === 'true' || $node[Converter::VALUE] === '1';
     }
 }

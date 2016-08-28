@@ -38,7 +38,9 @@ class Bootstrap
                     new \Core\Filesystem\Content\Xml\Dom\Merger()
                 ),
                 new \Core\Di\Config\Xml\Converter(
-                    new \Core\Di\Config\Argument\TypeFactory()
+                    new \Core\Di\Config\Argument\Service(
+                        new \Core\Di\Config\Argument\TypeFactory()
+                    )
                 )
             )
         );
@@ -47,6 +49,7 @@ class Bootstrap
     }
 }
 
+require_once BP . '/../vendor/autoload.php';
 require_once BP . '/Core/Autoloader.php';
 
 spl_autoload_register([\Core\Autoloader::class, 'autoload'], true, true);

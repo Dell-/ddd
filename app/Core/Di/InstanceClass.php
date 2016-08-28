@@ -9,22 +9,27 @@ class InstanceClass
     /**
      * @var string
      */
-    protected $id;
+    private $id;
 
     /**
      * @var string
      */
-    protected $class;
+    private $class;
 
     /**
      * @var array
      */
-    protected $arguments = [];
+    private $arguments = [];
 
     /**
      * @var bool
      */
-    protected $shared;
+    private $shared;
+
+    /**
+     * @var array
+     */
+    private $callbacks = [];
 
     /**
      * Constructor
@@ -72,5 +77,25 @@ class InstanceClass
     public function isShared()
     {
         return $this->shared;
+    }
+
+    /**
+     * @param string $method
+     * @param array $arguments
+     */
+    public function addCallback($method, array $arguments = [])
+    {
+        $this->callbacks[] = [
+            'method' => $method,
+            'arguments' => $arguments
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getCallbacks()
+    {
+        return $this->callbacks;
     }
 }
