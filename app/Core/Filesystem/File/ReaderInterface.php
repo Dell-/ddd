@@ -1,10 +1,12 @@
 <?php
-namespace Core\Filesystem;
+namespace Core\Filesystem\File;
+
+use Core\Filesystem\FileInterface;
 
 /**
- * Interface FileReaderInterface
+ * Interface ReaderInterface
  */
-interface FileReaderInterface
+interface ReaderInterface
 {
     /**
      * Read file

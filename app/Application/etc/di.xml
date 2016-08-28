@@ -2,5 +2,25 @@
 <di xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Core/Di/etc/di.xsd">
     <interface name="Core\Di\ContainerInterface" class="Core\Di\Container"/>
     <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
+    <interface name="Psr\Log\LoggerInterface" class="Monolog\Logger"/>
     <instance class="Core\Di\Container" shared="true"/>
+    <instance class="Monolog\Logger" shared="true">
+        <callback method="pushHandler">
+            <argument name="handler">
+                <object class="Monolog\Handler\RotatingFileHandler">
+                    <argument name="filename">
+                        <string>/home/dell/www/game.loc/project/app/Application/runtime/app.log</string>
+                    </argument>
+                    <argument name="maxFiles">
+                        <int>5</int>
+                    </argument>
+                </object>
+            </argument>
+        </callback>
+        <callback method="pushHandler">
+            <argument name="handler">
+                <object class="Monolog\Handler\ChromePHPHandler"/>
+            </argument>
+        </callback>
+    </instance>
 </di>

@@ -7,28 +7,11 @@ namespace Core\Filesystem;
 class IteratorFactory
 {
     /**
-     * @var int
+     * @param DirectoryInterface $directory
+     * @return Iterator
      */
-    private $flags;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
+    public function create(DirectoryInterface $directory)
     {
-        $this->flags = \FilesystemIterator::CURRENT_AS_FILEINFO
-            | \FilesystemIterator::SKIP_DOTS
-            | \FilesystemIterator::KEY_AS_FILENAME;
-    }
-
-    /**
-     * Create files iterator
-     *
-     * @param string $path
-     * @return \FilesystemIterator
-     */
-    public function create($path)
-    {
-        return new \FilesystemIterator($path, $this->flags);
+        return new Iterator($directory);
     }
 }

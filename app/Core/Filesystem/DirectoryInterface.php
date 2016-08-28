@@ -7,6 +7,13 @@ namespace Core\Filesystem;
 interface DirectoryInterface
 {
     /**
+     * Returns true if the directory is exists, otherwise false
+     *
+     * @return bool
+     */
+    public function isExists();
+
+    /**
      * Returns true if the directory is readable, otherwise false
      *
      * @return bool

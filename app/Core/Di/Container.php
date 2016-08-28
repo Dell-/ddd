@@ -64,6 +64,15 @@ class Container implements ContainerInterface
                 new \ReflectionClass($instanceClass->getClass()),
                 array_merge($this->compileObjectArguments($instanceClass->getArguments()), $arguments)
             );
+
+            foreach ($instanceClass->getCallbacks() as $callback) {
+                $this->callMethod(
+                    $object,
+                    $callback['method'],
+                    $this->compileObjectArguments($callback['arguments'])
+                );
+            }
+
             if ($instanceClass->isShared()) {
                 $this->shared[$className] = $object;
             }
@@ -85,7 +94,7 @@ class Container implements ContainerInterface
         }
 
         $classReflection = new \ReflectionClass($object);
-        if ($classReflection->hasMethod($methodName)) {
+        if (!$classReflection->hasMethod($methodName)) {
             throw new \InvalidArgumentException(
                 get_class($object) . '::' . $methodName . '() method does not exists.'
             );
@@ -98,8 +107,10 @@ class Container implements ContainerInterface
             );
         }
 
-        $method = $classReflection->getMethod('__construct');
-        $arguments = $this->prepareArguments($method->getParameters(), $arguments);
+        $arguments = $this->prepareArguments(
+            $method->getParameters(),
+            $arguments
+        );
 
         return $object->$methodName(...array_values($arguments));
     }

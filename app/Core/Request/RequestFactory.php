@@ -40,7 +40,7 @@ class RequestFactory
      */
     private function handleCliRequest()
     {
-        $data = $data = $this->container->get(\Core\Request\Cli\Handler::class)->handle();
+        $data = $this->container->get(\Core\Request\Cli\Handler::class)->handle();
         return $this->container->create(
             \Core\Request\Cli\Argument::class,
             ['data' => $data]

@@ -3,6 +3,9 @@ namespace Core\Request\Cli;
 
 use Core\Request\RequestInterface;
 
+/**
+ * Class Argument
+ */
 class Argument implements RequestInterface
 {
     /**

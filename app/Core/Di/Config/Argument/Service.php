@@ -1,24 +1,35 @@
 <?php
-namespace Core\Di\Config\Argument\Type;
+namespace Core\Di\Config\Argument;
 
-use Core\Di\InstanceClass;
-use Core\Di\Config\Argument\TypeConverterInterface;
 use Core\Di\Config\Xml\Converter;
 
 /**
- * Class ObjectType
+ * Class Service
  */
-class ObjectType extends AbstractType implements TypeConverterInterface
+class Service
 {
     /**
-     * @param array $node
-     * @return mixed
+     * @var TypeFactoryInterface
      */
-    public function convert(array $node)
+    private $typeFactory;
+
+    /**
+     * Constructor
+     *
+     * @param TypeFactoryInterface $typeFactory
+     */
+    public function __construct(TypeFactoryInterface $typeFactory)
+    {
+        $this->typeFactory = $typeFactory;
+    }
+
+    /**
+     * @param array $arguments
+     * @return array
+     */
+    public function createArguments(array $arguments)
     {
         $instanceArguments = [];
-        $arguments = isset($node['argument']) ? $node['argument'] : [];
-        $class = trim($node[Converter::ATTRIBUTES]['class'], '\\');
         foreach ($arguments as $argument) {
             $attributes = $argument[Converter::ATTRIBUTES];
             unset($argument[Converter::ATTRIBUTES]);
@@ -29,6 +40,6 @@ class ObjectType extends AbstractType implements TypeConverterInterface
                 ->convert($argument);
         }
 
-        return new InstanceClass($class, $class, $instanceArguments);
+        return $instanceArguments;
     }
 }

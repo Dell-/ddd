@@ -2,7 +2,7 @@
 namespace Core\Di\Config\Argument\Type;
 
 use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Reader as DiReader;
+use Core\Di\Config\Xml\Converter;
 
 /**
  * Class ArrayType
@@ -17,9 +17,9 @@ class ArrayType extends AbstractType implements TypeConverterInterface
     {
         $result = [];
         foreach ($node['item'] as $item) {
-            if (isset($item[DiReader::ATTRIBUTES]['name'])) {
-                $name = $item[DiReader::ATTRIBUTES]['name'];
-                unset($item[DiReader::ATTRIBUTES]);
+            if (isset($item[Converter::ATTRIBUTES]['name'])) {
+                $name = $item[Converter::ATTRIBUTES]['name'];
+                unset($item[Converter::ATTRIBUTES]);
                 $type = key($item);
                 $item = reset($item);
                 $item = reset($item);

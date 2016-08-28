@@ -2,7 +2,7 @@
 namespace Core\Di\Config\Argument\Type;
 
 use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Reader as DiReader;
+use Core\Di\Config\Xml\Converter;
 
 /**
  * Class IntType
@@ -15,6 +15,6 @@ class IntType extends AbstractType implements TypeConverterInterface
      */
     public function convert(array $node)
     {
-        return (int) $node[DiReader::VALUE];
+        return (int) $node[Converter::VALUE];
     }
 }

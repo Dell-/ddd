@@ -2,10 +2,12 @@
 namespace Core\Config\Xml;
 
 use Core\Config\ReaderInterface;
-use Core\Filesystem\DirectoryFactory;
-use Core\Filesystem\FileReaderInterface;
-use Core\Filesystem\FileCollectorInterface;
 use Core\Filesystem\Content\Xml\Dom\Merger;
+use Core\Filesystem\Directory;
+use Core\Filesystem\File;
+use Core\Filesystem\Filter\File as FilterFile;
+use Core\Filesystem\Filter\Regexp as FilterRegexp;
+use Core\Filesystem\IteratorFactory;
 
 /**
  * Class Reader
@@ -18,46 +20,46 @@ class Reader implements ReaderInterface
     private $domMerger;
 
     /**
-     * @var DirectoryFactory
+     * @var Directory\Factory
      */
     private $directoryFactory;
 
     /**
-     * @var FileReaderInterface
+     * @var File\ReaderInterface
      */
     private $fileReader;
 
     /**
-     * @var FileCollectorInterface
-     */
-    private $fileCollector;
-
-    /**
      * @var string
      */
-    private $directoryName;
+    private $directory;
 
     /**
-     * Constructor
+     * @var IteratorFactory
+     */
+    private $iteratorFactory;
+
+    /**
+     * Reader constructor.
      *
-     * @param string $directoryName
-     * @param DirectoryFactory $directoryFactory
-     * @param FileReaderInterface $fileReader
-     * @param FileCollectorInterface $fileCollector
+     * @param string $directory
+     * @param Directory\Factory $directoryFactory
+     * @param IteratorFactory $iteratorFactory
+     * @param File\ReaderInterface $fileReader
      * @param Merger $domMerger
      */
     public function __construct(
-        $directoryName,
-        DirectoryFactory $directoryFactory,
-        FileReaderInterface $fileReader,
-        FileCollectorInterface $fileCollector,
+        $directory,
+        Directory\Factory $directoryFactory,
+        IteratorFactory $iteratorFactory,
+        File\ReaderInterface $fileReader,
         Merger $domMerger
     ) {
-        $this->directoryName = $directoryName;
+        $this->directory = $directory;
         $this->directoryFactory = $directoryFactory;
         $this->fileReader = $fileReader;
-        $this->fileCollector = $fileCollector;
         $this->domMerger = $domMerger;
+        $this->iteratorFactory = $iteratorFactory;
     }
 
     /**
@@ -65,9 +67,11 @@ class Reader implements ReaderInterface
      */
     public function read()
     {
-        $directory = $this->directoryFactory->create($this->directoryName);
+        $directory = $this->directoryFactory->create($this->directory);
+        $iterator = $this->iteratorFactory->create($directory);
 
-        foreach ($this->fileCollector->collect($directory) as $file) {
+        /** @var File $file */
+        foreach (new FilterFile(new FilterRegexp($iterator, '#di\.xml$#')) as $file) {
             $this->domMerger->merge($this->fileReader->read($file));
         }
 
