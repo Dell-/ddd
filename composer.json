@@ -1,9 +1,6 @@
 {
-    "name": "game",
-    "keywords": [
-        "shell",
-        "console"
-    ],
+    "name": "ddd",
+    "keywords": ["project"],
     "license": "MIT",
     "minimum-stability": "dev",
     "require": {

@@ -7,7 +7,7 @@ use Core\Di\Config\Xml\Converter;
 /**
  * Class IntType
  */
-class IntType extends AbstractType implements TypeConverterInterface
+class FloatType extends AbstractType implements TypeConverterInterface
 {
     /**
      * @param array $node

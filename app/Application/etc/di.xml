@@ -9,7 +9,7 @@
             <argument name="handler">
                 <object class="Monolog\Handler\RotatingFileHandler">
                     <argument name="filename">
-                        <string>/home/dell/www/game.loc/project/app/Application/runtime/app.log</string>
+                        <path base="BP">Application/runtime/app.log</path>
                     </argument>
                     <argument name="maxFiles">
                         <int>5</int>
