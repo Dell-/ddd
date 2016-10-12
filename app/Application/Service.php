@@ -2,6 +2,8 @@
 namespace Application;
 
 use Core\Di\ContainerInterface;
+use Core\Request\HandlerFactory;
+use Core\Request\RequestFactory;
 use Core\Service\ServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -21,15 +23,33 @@ final class Service implements ServiceInterface
     private $logger;
 
     /**
+     * @var RequestFactory
+     */
+    private $requestFactory;
+
+    /**
+     * @var HandlerFactory
+     */
+    private $handlerFactory;
+
+    /**
      * Constructor
      *
      * @param ContainerInterface $container
      * @param LoggerInterface $logger
+     * @param RequestFactory $requestFactory
+     * @param HandlerFactory $handlerFactory
      */
-    public function __construct(ContainerInterface $container, LoggerInterface $logger)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        LoggerInterface $logger,
+        RequestFactory $requestFactory,
+        HandlerFactory $handlerFactory
+    ) {
         $this->container = $container;
         $this->logger = $logger;
+        $this->requestFactory = $requestFactory;
+        $this->handlerFactory = $handlerFactory;
     }
 
     /**
@@ -37,6 +57,8 @@ final class Service implements ServiceInterface
      */
     public function run()
     {
+        $this->handlerFactory->create()
+            ->handle($this->requestFactory->create());
 
         $this->logger->debug(sprintf(
             'time: %f sec; memory: %d kb',

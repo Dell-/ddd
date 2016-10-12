@@ -34,8 +34,15 @@
             <xs:element name="float" type="xs:decimal"/>
             <xs:element name="int" type="xs:int"/>
             <xs:element name="bool" type="xs:boolean"/>
+            <xs:element name="path" type="path"/>
         </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="path">
+        <xs:complexContent>
+            <xs:extension base="xs:string"/>
+        </xs:complexContent>
+        <xs:attribute name="base" type="xs:string" use="required"/>
     </xs:complexType>
     <xs:complexType name="object">
         <xs:complexContent>

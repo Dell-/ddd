@@ -1,13 +1,15 @@
 <?php
 namespace Core\Request;
 
+use Core\Response\ResponseInterface;
+
 /**
  * Interface HandlerInterface
  */
 interface HandlerInterface
 {
     /**
-     * @return array
+     * @return ResponseInterface
      */
-    public function handle();
+    public function handle(RequestInterface $request);
 }
