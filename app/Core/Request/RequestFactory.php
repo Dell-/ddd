@@ -28,7 +28,7 @@ class RequestFactory
      */
     public function create()
     {
-        if (php_sapi_name() == "cli") {
+        if (php_sapi_name() === self::CLI_REQUEST) {
             return $this->handleCliRequest();
         }
 
