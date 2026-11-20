@@ -1,20 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeConverterInterface;
 use Core\Di\Config\Xml\Converter;
 
-/**
- * Class StringType
- */
-class StringType extends AbstractType implements TypeConverterInterface
+class StringType extends AbstractType
 {
-    /**
-     * @param array $node
-     * @return mixed
-     */
-    public function convert(array $node)
+    public function convert(array $node): string
     {
-        return (string) $node[Converter::VALUE];
+        return (string) ($node[Converter::VALUE] ?? '');
     }
 }

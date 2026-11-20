@@ -1,15 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Request;
 
-use Core\Response\ResponseInterface;
-
-/**
- * Interface HandlerInterface
- */
 interface HandlerInterface
 {
     /**
-     * @return ResponseInterface
+     * Handles the request and returns the output.
+     *
+     * @throws RequestException
      */
-    public function handle(RequestInterface $request);
+    public function handle(RequestInterface $request): string;
 }

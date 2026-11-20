@@ -1,37 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Filter;
 
+use Core\Filesystem\Directory as FilesystemDirectory;
+
 /**
- * Class Directory
+ * Accepts only directories and returns them as Core\Filesystem\Directory.
  */
 class Directory extends \FilterIterator
 {
-    /**
-     * File constructor.
-     *
-     * @param \Iterator $iterator
-     */
-    public function __construct(\Iterator $iterator)
+    public function accept(): bool
     {
-        parent::__construct($iterator);
+        return $this->getInnerIterator()->current()->isDir();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function accept()
+    public function current(): FilesystemDirectory
     {
-        /** @var \SplFileInfo $file */
-        $file = $this->getInnerIterator()->current();
-        return $file->isDir();
-    }
-
-    /**
-     * @inheritdoc
-     * @return \Core\Filesystem\Directory
-     */
-    public function current()
-    {
-        return new \Core\Filesystem\Directory($this->getInnerIterator()->current());
+        return new FilesystemDirectory($this->getInnerIterator()->current());
     }
 }

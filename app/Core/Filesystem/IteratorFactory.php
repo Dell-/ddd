@@ -1,16 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
-/**
- * Class IteratorFactory
- */
 class IteratorFactory
 {
-    /**
-     * @param DirectoryInterface $directory
-     * @return Iterator
-     */
-    public function create(DirectoryInterface $directory)
+    public function create(DirectoryInterface $directory): Iterator
     {
         return new Iterator($directory);
     }

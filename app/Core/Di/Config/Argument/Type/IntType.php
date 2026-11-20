@@ -1,20 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Converter;
-
-/**
- * Class IntType
- */
-class IntType extends AbstractType implements TypeConverterInterface
+class IntType extends AbstractType
 {
-    /**
-     * @param array $node
-     * @return mixed
-     */
-    public function convert(array $node)
+    public function convert(array $node): int
     {
-        return (int) $node[Converter::VALUE];
+        return (int) $this->value($node);
     }
 }

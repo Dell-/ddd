@@ -1,61 +1,40 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Request;
 
-use Core\Di\ContainerInterface;
-
 /**
- * Class RequestFactory
+ * Creates the request of the current process (HTTP or console).
  */
 class RequestFactory
 {
-    const CLI_REQUEST = 'cli';
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        private readonly Http\Parser $httpParser,
+        private readonly Cli\Parser $cliParser,
+    ) {
     }
 
-    /**
-     * @return RequestInterface
-     */
-    public function create()
+    public function create(): RequestInterface
     {
-        if (php_sapi_name() === self::CLI_REQUEST) {
-            return $this->handleCliRequest();
-        }
-
-        return $this->handleHttpRequest();
+        return PHP_SAPI === 'cli' ? $this->createCliRequest() : $this->createHttpRequest();
     }
 
-    /**
-     * @return RequestInterface
-     */
-    private function handleCliRequest()
+    private function createCliRequest(): RequestInterface
     {
-        $data = $this->container->get(\Core\Request\Cli\Handler::class)->handle();
-        return $this->container->create(
-            \Core\Request\Cli\Argument::class,
-            ['data' => $data]
-        );
+        $data = $this->cliParser->parse($_SERVER['argv'] ?? []);
+        $route = (string) ($data[Cli\Parser::REQUEST_ROUTE] ?? '');
+        unset($data[Cli\Parser::REQUEST_ROUTE]);
+
+        return new Request(RequestInterface::METHOD_CLI, $route, $data);
     }
 
-    /**
-     * @return RequestInterface
-     */
-    private function handleHttpRequest()
+    private function createHttpRequest(): RequestInterface
     {
-        $data = $this->container->get(\Core\Request\Http\Handler::class)->handle();
-        return $this->container->create(
-            \Core\Request\Http\Argument::class,
-            ['data' => $data]
-        );
+        $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        $path = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
+        $route = '/' . trim(is_string($path) ? rawurldecode($path) : '', '/');
+
+        return new Request($method, $route, $this->httpParser->parse($method));
     }
 }

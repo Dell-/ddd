@@ -1,87 +1,54 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Filter;
 
 use Core\Filesystem\Iterator;
 
 /**
- * Class Regexp
+ * Accepts directory entries whose file name matches the pattern.
  */
 class Regexp implements \OuterIterator
 {
-    /**
-     * @var \RegexIterator
-     */
-    private $iterator;
+    private \RegexIterator $iterator;
 
-    /**
-     * Regexp constructor.
-     *
-     * @param Iterator $iterator
-     * @param string $pattern
-     */
-    public function __construct(Iterator $iterator, $pattern)
+    public function __construct(Iterator $iterator, string $pattern)
     {
-        $this->iterator = new \RegexIterator(
-            $iterator,
-            $pattern,
-            \RegexIterator::MATCH,
-            \RegexIterator::USE_KEY
-        );
+        $this->iterator = new \RegexIterator($iterator, $pattern, \RegexIterator::MATCH, \RegexIterator::USE_KEY);
     }
 
-    /**
-     * Cloned encapsulated data
-     */
     public function __clone()
     {
         $this->iterator = clone $this->iterator;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function current()
+    public function current(): mixed
     {
         return $this->iterator->current();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function next()
+    public function next(): void
     {
         $this->iterator->next();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function key()
+    public function key(): mixed
     {
         return $this->iterator->key();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function valid()
+    public function valid(): bool
     {
         return $this->iterator->valid();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
+    public function rewind(): void
     {
         $this->iterator->rewind();
     }
 
-    /**
-     * @inheritdoc
-     * @return Iterator
-     */
-    public function getInnerIterator()
+    public function getInnerIterator(): ?\Iterator
     {
         return $this->iterator->getInnerIterator();
     }

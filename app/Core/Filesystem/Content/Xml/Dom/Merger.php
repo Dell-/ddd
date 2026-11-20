@@ -1,226 +1,147 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Content\Xml\Dom;
 
 /**
- * Class Merger
+ * Merges several XML documents into one.
+ * Elements with the same id attribute (see $idAttributes) are merged, the rest are appended.
  */
 class Merger
 {
     /**
-     * ID attributes for the unique element [default = name]
-     *
-     * @var array
+     * @var string[]
      */
-    protected $idAttributes = ['name'];
+    protected array $idAttributes = ['name'];
 
-    /**
-     * @var \DOMDocument
-     */
-    protected $domDocument;
+    protected ?\DOMDocument $domDocument = null;
 
-    /**
-     * @var Factory
-     */
-    protected $domFactory;
+    protected ?\DOMXPath $xPath = null;
 
-    /**
-     * @var XPathFactory
-     */
-    protected $xPathFactory;
-
-    /**
-     * @var \DOMXPath
-     */
-    protected $xPath;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->domFactory = new Factory();
-        $this ->xPathFactory = new XPathFactory();
+    public function __construct(
+        protected readonly Factory $domFactory = new Factory(),
+        protected readonly XPathFactory $xPathFactory = new XPathFactory(),
+    ) {
     }
 
-    /**
-     * Merge XML content into one document
-     *
-     * @param string $xmlContent
-     * @param string $schemaFilePath [optional]
-     * @throws \Exception
-     */
-    public function merge($xmlContent, $schemaFilePath = null)
+    public function merge(string $xmlContent, ?string $schemaFilePath = null): void
     {
         $domDocument = $this->domFactory->create($xmlContent);
         if ($schemaFilePath !== null && !$domDocument->schemaValidate($schemaFilePath)) {
-            throw new \Exception('Invalid XML file, schema validation fails.');
+            throw new \InvalidArgumentException('Invalid XML file, schema validation fails.');
         }
-        if (!isset($this->domDocument)) {
+
+        if ($this->domDocument === null) {
             $this->domDocument = $domDocument;
             $this->xPath = $this->xPathFactory->create($this->domDocument);
-        } else {
-            if ($domDocument->documentElement->hasChildNodes()) {
-                $this->nestedMerge($domDocument->documentElement->childNodes, $this->domDocument->documentElement);
-            }
-            $this->mergeNodeAttributes($domDocument->documentElement, $this->domDocument->documentElement);
+
+            return;
         }
+
+        $root = $this->domDocument->documentElement;
+        if ($domDocument->documentElement->hasChildNodes()) {
+            $this->nestedMerge($domDocument->documentElement->childNodes, $root);
+        }
+        $this->mergeNodeAttributes($domDocument->documentElement, $root);
     }
 
-    /**
-     * Get XML content
-     *
-     * @return string
-     */
-    public function getContent()
+    public function getContent(): string
     {
-        return $this->domDocument->saveXML();
+        return (string) $this->getDocument()->saveXML();
     }
 
-    /**
-     * Get DOM document
-     *
-     * @return \DOMDocument
-     */
-    public function getDOMDocument()
+    public function getDOMDocument(): \DOMDocument
     {
-        return clone $this->domDocument;
+        return clone $this->getDocument();
     }
 
-    /**
-     * Nested merge document dom
-     *
-     * @param \DOMNodeList $nodeList
-     * @param \DOMNode $rootNode
-     */
-    protected function nestedMerge(\DOMNodeList $nodeList, \DOMNode $rootNode = null)
+    protected function getDocument(): \DOMDocument
     {
-        for ($iLength = $nodeList->length, $iIndex = 0; $iIndex < $iLength; ++$iIndex) {
-            $node = $nodeList->item($iIndex);
-            switch ($node->nodeType) {
-                case XML_TEXT_NODE:
-                case XML_COMMENT_NODE:
-                case XML_CDATA_SECTION_NODE:
-                    break;
-                case XML_ELEMENT_NODE:
-                    $xPath = $this->createXPath($node);
-                    $queryResult = $this->xPath->query($xPath, $rootNode);
-                    if ($queryResult->length > 0 && $this->hasMergeAttribute($node)) {
-                        $this->eachItems($queryResult, $node);
-                    } else {
-                        $this->appendNode($node, $rootNode);
-                    }
-                    break;
+        return $this->domDocument ?? throw new \LogicException('Nothing has been merged yet.');
+    }
+
+    protected function nestedMerge(\DOMNodeList $nodeList, \DOMNode $rootNode): void
+    {
+        foreach (iterator_to_array($nodeList) as $node) {
+            if ($node->nodeType !== XML_ELEMENT_NODE) {
+                continue;
+            }
+
+            $queryResult = $this->xPath->query($this->createXPath($node), $rootNode);
+            if ($queryResult !== false && $queryResult->length > 0 && $this->hasMergeAttribute($node)) {
+                $this->eachItems($queryResult, $node);
+            } else {
+                $this->appendNode($node, $rootNode);
             }
         }
     }
 
-    /**
-     * Merge each items list
-     *
-     * @param \DOMNodeList $rootNodeList
-     * @param \DOMNode $node
-     */
-    protected function eachItems(\DOMNodeList $rootNodeList, \DOMNode $node)
+    protected function eachItems(\DOMNodeList $rootNodeList, \DOMNode $node): void
     {
-        for ($iLength = $rootNodeList->length, $iIndex = 0; $iIndex < $iLength; ++$iIndex) {
-            $itemNode = $rootNodeList->item($iIndex);
+        foreach ($rootNodeList as $itemNode) {
             if ($this->isTextNode($node) && $this->isTextNode($itemNode)) {
                 $itemNode->textContent = $node->textContent;
-            } else if ($node->hasChildNodes()) {
+            } elseif ($node->hasChildNodes()) {
                 $this->nestedMerge($node->childNodes, $itemNode);
             }
         }
     }
 
-    /**
-     * Append node
-     *
-     * @param \DOMNode $node
-     * @param \DOMNode $rootNode
-     */
-    protected function appendNode(\DOMNode $node, \DOMNode $rootNode)
+    protected function appendNode(\DOMNode $node, \DOMNode $rootNode): void
     {
-        $node = $this->domDocument->importNode($node, true);
-        $rootNode->appendChild($node);
+        $rootNode->appendChild($this->getDocument()->importNode($node, true));
     }
 
-    /**
-     * Merge node attributes
-     *
-     * @param \DOMElement $element
-     * @param \DOMElement $rootElement
-     */
-    protected function mergeNodeAttributes(\DOMElement $element, \DOMElement $rootElement)
+    protected function mergeNodeAttributes(\DOMElement $element, \DOMElement $rootElement): void
     {
-        if ($element->hasAttributes()) {
-            foreach ($element->attributes as $name => $attribute) {
-                $rootElement->setAttribute($name, $attribute->value);
-            }
+        foreach ($element->attributes as $name => $attribute) {
+            $rootElement->setAttribute($name, $attribute->value);
         }
     }
 
     /**
-     * Create XPath string
-     *
-     * @param \DOMNode $node
-     * @return string
+     * XPath of the node relative to the document root, e.g. "/route[@name="/"]".
      */
-    protected function createXPath(\DOMNode $node)
+    protected function createXPath(\DOMNode $node): string
     {
-        if ($node->ownerDocument === null || $node->parentNode === null) {
+        if ($node instanceof \DOMDocument || $node->parentNode === null) {
             return '';
         }
 
         $xPathAttributes = [];
-        $parentXPath = $this->createXPath($node->parentNode);
-        if ($node->hasAttributes()) {
-            foreach ($node->attributes as $name => $attribute) {
-                if (in_array($name, $this->idAttributes)) {
-                    $xPathAttributes[] = sprintf('@%s="%s"', $name, $attribute->value);
-                }
+        foreach ($node->attributes ?? [] as $name => $attribute) {
+            if (in_array($name, $this->idAttributes, true)) {
+                $xPathAttributes[] = sprintf('@%s="%s"', $name, $attribute->value);
             }
         }
 
-        if (!empty($xPathAttributes)) {
+        $nodePath = (string) $node->getNodePath();
+        $position = strrpos($nodePath, '[');
+        if ($xPathAttributes !== []) {
             $xPath = $node->nodeName . '[' . implode(' and ', $xPathAttributes) . ']';
-        } else if (strrpos($node->getNodePath(), '[') !==  false) {
-            $xPath = $node->nodeName . substr($node->getNodePath(), strrpos($node->getNodePath(), '['));
+        } elseif ($position !== false && !str_contains(substr($nodePath, $position), '/')) {
+            $xPath = $node->nodeName . substr($nodePath, $position);
         } else {
             $xPath = $node->nodeName;
         }
 
-        return $parentXPath . '/' . $xPath;
+        return $this->createXPath($node->parentNode) . '/' . $xPath;
     }
 
-    /**
-     * Has id attribute in node
-     *
-     * @param \DOMNode $node
-     * @return bool
-     */
-    protected function hasMergeAttribute(\DOMNode $node)
+    protected function hasMergeAttribute(\DOMNode $node): bool
     {
-        if ($node->hasAttributes()) {
-            foreach ($node->attributes as $name => $attribute) {
-                if (in_array($name, $this->idAttributes)) {
-                    return true;
-                }
+        foreach ($node->attributes ?? [] as $name => $attribute) {
+            if (in_array($name, $this->idAttributes, true)) {
+                return true;
             }
         }
 
         return false;
     }
 
-    /**
-     * Whether the node DOMText
-     *
-     * @param \DOMNode $node
-     * @return bool
-     */
-    protected function isTextNode(\DOMNode $node)
+    protected function isTextNode(\DOMNode $node): bool
     {
-        return $node->hasChildNodes()
-            && $node->childNodes->length === 1
-            && $node->childNodes->item(0) instanceof \DOMText;
+        return $node->childNodes->length === 1 && $node->firstChild instanceof \DOMText;
     }
 }

@@ -1,25 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\File;
 
 use Core\Filesystem\FileInterface;
 
-/**
- * Class FileReader
- */
 class Reader implements ReaderInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function read(FileInterface $file)
+    public function read(FileInterface $file): string
     {
-        $content = false;
-        if ($file->isReadable()) {
-            $content = file_get_contents($file->getPathname());
-        }
-
+        $content = $file->isReadable() ? file_get_contents($file->getPathname()) : false;
         if ($content === false) {
-            throw new \RuntimeException("The file '{$file->getPathname()}' cannot be read.");
+            throw new \RuntimeException(sprintf('The file "%s" cannot be read.', $file->getPathname()));
         }
 
         return $content;

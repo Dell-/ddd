@@ -1,30 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Content\Xml\Dom;
 
-/**
- * Class Factory
- */
 class Factory
 {
-    const XML_VERSION = '1.0';
+    public const XML_VERSION = '1.0';
+    public const XML_ENCODING = 'UTF-8';
 
-    const XML_ENCODING = 'UTF-8';
-
-    /**
-     * Create class XML document
-     *
-     * @param string $xmlContent
-     * @return \DOMDocument
-     */
-    public function create($xmlContent)
+    public function create(string $xmlContent): \DOMDocument
     {
-        if (empty($xmlContent)) {
+        if (trim($xmlContent) === '') {
             throw new \InvalidArgumentException('XML document cannot be empty.');
         }
 
-        $domDocument = new \DOMDocument(static::XML_VERSION, static::XML_ENCODING);
-        $domDocument->loadXML($xmlContent);
+        $document = new \DOMDocument(static::XML_VERSION, static::XML_ENCODING);
+        $previous = libxml_use_internal_errors(true);
+        try {
+            if (!$document->loadXML($xmlContent)) {
+                $error = libxml_get_last_error();
+                throw new \InvalidArgumentException(
+                    'Invalid XML document: ' . ($error !== false ? trim($error->message) : 'unknown error')
+                );
+            }
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
 
-        return $domDocument;
+        return $document;
     }
 }

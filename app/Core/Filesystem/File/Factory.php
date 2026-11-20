@@ -1,22 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\File;
 
 use Core\Filesystem\File;
 use Core\Filesystem\FileInterface;
 
-/**
- * Class Factory
- */
-class Factory implements FactoryInteface
+class Factory implements FactoryInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function create($filename)
+    public function create(string $filename): FileInterface
     {
         $file = new \SplFileInfo($filename);
         if (!$file->isFile()) {
-            throw new \InvalidArgumentException('You must specify the file name.');
+            throw new \InvalidArgumentException(sprintf('"%s" is not a file.', $filename));
         }
 
         return new File($file);

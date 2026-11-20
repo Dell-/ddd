@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    image: ddd-app
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      APP_DEBUG: "1"
+    ports:
+      - "8080:8080"
+    volumes:
+      # live code editing; vendor/ stays the one built into the image
+      - ./app:/app/app
+      - ./web:/app/web
+      - ./bin:/app/bin

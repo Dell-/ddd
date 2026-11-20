@@ -1,37 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Filter;
 
+use Core\Filesystem\File as FilesystemFile;
+
 /**
- * Class File
+ * Accepts only files and returns them as Core\Filesystem\File.
  */
 class File extends \FilterIterator
 {
-    /**
-     * File constructor.
-     *
-     * @param \Iterator $iterator
-     */
-    public function __construct(\Iterator $iterator)
+    public function accept(): bool
     {
-        parent::__construct($iterator);
+        return $this->getInnerIterator()->current()->isFile();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function accept()
+    public function current(): FilesystemFile
     {
-        /** @var \SplFileInfo $file */
-        $file = $this->getInnerIterator()->current();
-        return $file->isFile();
-    }
-
-    /**
-     * @inheritdoc
-     * @return \Core\Filesystem\File
-     */
-    public function current()
-    {
-        return new \Core\Filesystem\File($this->getInnerIterator()->current());
+        return new FilesystemFile($this->getInnerIterator()->current());
     }
 }

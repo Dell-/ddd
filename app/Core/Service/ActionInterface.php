@@ -1,13 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Service;
 
-/**
- * Interface ActionInterface
- */
 interface ActionInterface
 {
     /**
-     * @return ResultInterface
+     * Executes the action and returns its output.
      */
-    public function execute();
+    public function execute(): string;
 }

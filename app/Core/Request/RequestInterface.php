@@ -1,17 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Request;
 
-/**
- * Interface RequestInterface
- */
 interface RequestInterface
 {
+    public const METHOD_CLI = 'CLI';
+
     /**
-     * Get data
-     *
-     * @param string $key
-     * @param mixed|null $default
-     * @return mixed
+     * HTTP method in upper case (GET, POST, ...) or "CLI" for console requests.
      */
-    public function getData($key, $default = null);
+    public function getMethod(): string;
+
+    /**
+     * URL path for HTTP requests, command name for console requests.
+     */
+    public function getRoute(): string;
+
+    public function getData(string $key, mixed $default = null): mixed;
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function getAllData(): array;
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument;
 
 use Core\Di\Config\Argument\Type\ArrayType;
@@ -8,16 +11,14 @@ use Core\Di\Config\Argument\Type\IntType;
 use Core\Di\Config\Argument\Type\ObjectType;
 use Core\Di\Config\Argument\Type\PathType;
 use Core\Di\Config\Argument\Type\StringType;
+use Core\Di\Config\Xml\Converter;
 
-/**
- * Class TypeFactory
- */
 class TypeFactory implements TypeFactoryInterface
 {
     /**
-     * @var array
+     * @var array<string, class-string<TypeConverterInterface>>
      */
-    private $types = [
+    private array $types = [
         'object' => ObjectType::class,
         'array' => ArrayType::class,
         'string' => StringType::class,
@@ -28,23 +29,28 @@ class TypeFactory implements TypeFactoryInterface
     ];
 
     /**
-     * @var TypeConverterInterface[]
+     * @var array<string, TypeConverterInterface>
      */
-    protected $instances;
+    private array $instances = [];
 
-    /**
-     * @inheritdoc
-     */
-    public function create($type)
+    public function create(string $type): TypeConverterInterface
     {
         if (!isset($this->types[$type])) {
-            throw new \Exception(sprintf('Undefined type (%s) for converter instance', $type));
+            throw new \InvalidArgumentException(sprintf('Undefined type (%s) for converter instance', $type));
         }
 
-        if (!isset($this->instances[$type])) {
-            $this->instances[$type] = new $this->types[$type]($this);
+        return $this->instances[$type] ??= new $this->types[$type]($this);
+    }
+
+    public function convertValue(array $node): mixed
+    {
+        unset($node[Converter::ATTRIBUTES], $node[Converter::VALUE]);
+
+        $type = array_key_first($node);
+        if ($type === null || !is_array($node[$type]) || $node[$type] === []) {
+            throw new \InvalidArgumentException('Argument value is missing.');
         }
 
-        return $this->instances[$type];
+        return $this->create((string) $type)->convert(reset($node[$type]));
     }
 }

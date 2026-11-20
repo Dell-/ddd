@@ -1,35 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Service;
 
-use Core\Di\Container;
+use Core\Di\ContainerInterface;
 
 /**
- * Class Layer
+ * Placeholder of a service layer (not implemented yet).
  */
 class Layer
 {
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * Constructor
-     *
-     * @param Container $container
-     */
-    public function __construct(Container $container)
+    public function __construct(protected readonly ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
-    public function collect()
+    public function collect(): void
     {
-
     }
 
-    public function run()
+    public function run(): void
     {
-
     }
 }

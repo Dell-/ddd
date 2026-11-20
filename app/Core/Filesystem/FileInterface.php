@@ -1,113 +1,38 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
-/**
- * Interface FileInterface
- */
 interface FileInterface
 {
-    /**
-     * Returns true if the file is exists, otherwise false
-     *
-     * @return bool
-     */
-    public function isExists();
+    public function isExists(): bool;
 
-    /**
-     * Returns true if the file is readable, otherwise false
-     *
-     * @return bool
-     */
-    public function isReadable();
+    public function isReadable(): bool;
 
-    /**
-     * Returns true if the file is writable, otherwise false
-     *
-     * @return bool
-     */
-    public function isWritable();
+    public function isWritable(): bool;
 
-    /**
-     * Tells if the file is executable
-     *
-     * @return bool
-     */
-    public function isExecutable();
+    public function isExecutable(): bool;
 
-    /**
-     * Returns the size of the file, in bytes
-     *
-     * @return int
-     */
-    public function getSize();
+    public function getSize(): int|false;
 
-    /**
-     * Returns the path and file name of current file
-     *
-     * @return string
-     */
-    public function getPathname();
+    public function getPathname(): string;
 
-    /**
-     * Returns the path to the file, omitting the file name and any trailing slash
-     *
-     * @return string
-     */
-    public function getPath();
+    public function getPath(): string;
 
-    /**
-     * Returns the permissions of the file, as a decimal integer
-     *
-     * @return int
-     */
-    public function getPerms();
+    public function getPerms(): int|false;
 
-    /**
-     * The file owner of the file, in numerical format
-     *
-     * @return int
-     */
-    public function getOwner();
+    public function getOwner(): int|false;
 
-    /**
-     * Returns the group id of the current file in numerical format
-     *
-     * @return int
-     */
-    public function getGroup();
+    public function getGroup(): int|false;
 
-    /**
-     * The last modification time of the file, as a Unix timestamp
-     *
-     * @return int
-     */
-    public function getMTime();
+    public function getMTime(): int|false;
 
-    /**
-     * Returns the last change time of the file, as a Unix timestamp
-     *
-     * @return int
-     */
-    public function getCTime();
+    public function getCTime(): int|false;
 
-    /**
-     * Returns the time the file was last accessed, as a Unix timestamp
-     *
-     * @return int
-     */
-    public function getATime();
+    public function getATime(): int|false;
 
-    /**
-     * Returns the file name
-     *
-     * @return string
-     */
-    public function getFilename();
+    public function getFilename(): string;
 
-    /**
-     * Returns a string containing the file extension, or an empty string if the file has no extension
-     *
-     * @return string
-     */
-    public function getExtension();
+    public function getExtension(): string;
 }

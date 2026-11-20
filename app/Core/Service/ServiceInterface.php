@@ -1,13 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Service;
 
-/**
- * Interface ServiceInterface
- */
 interface ServiceInterface
 {
     /**
-     * Run service
+     * Runs the application and returns the exit code (0 on success).
      */
-    public function run();
+    public function run(): int;
 }

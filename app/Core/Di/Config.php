@@ -1,50 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di;
 
-use Core\Config\ReaderInterface;
 use Core\Config\ConverterInterface;
+use Core\Config\ReaderInterface;
 
 /**
- * Class Config
+ * DI configuration: interface preferences and instance definitions.
  */
 class Config
 {
     /**
-     * Instances of classes
-     *
-     * @var InstanceClass[]
+     * @var array<string, InstanceClass>
      */
-    private $instances = [];
+    private array $instances;
 
-    /**
-     * Constructor
-     *
-     * @param ReaderInterface $reader
-     * @param ConverterInterface $converter
-     */
     public function __construct(ReaderInterface $reader, ConverterInterface $converter)
     {
         $this->instances = $converter->convert($reader->read());
     }
 
-    /**
-     * Get instance configuration
-     *
-     * @param string $name
-     * @return InstanceClass|null
-     */
-    public function getInstance($name)
+    public function getInstance(string $name): ?InstanceClass
     {
-        return isset($this->instances[$name]) ? $this->instances[$name] : null;
+        return $this->instances[$name] ?? null;
     }
 
-    /**
-     * Has exist instance
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function hasInstance($name)
+    public function hasInstance(string $name): bool
     {
         return isset($this->instances[$name]);
     }

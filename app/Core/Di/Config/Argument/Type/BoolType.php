@@ -1,20 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeConverterInterface;
-use Core\Di\Config\Xml\Converter;
-
-/**
- * Class BoolType
- */
-class BoolType extends AbstractType implements TypeConverterInterface
+class BoolType extends AbstractType
 {
-    /**
-     * @param array $node
-     * @return mixed
-     */
-    public function convert(array $node)
+    public function convert(array $node): bool
     {
-        return $node[Converter::VALUE] === 'true' || $node[Converter::VALUE] === '1';
+        return in_array(strtolower($this->value($node)), ['true', '1'], true);
     }
 }

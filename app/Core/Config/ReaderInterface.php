@@ -1,13 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Config;
 
-/**
- * Interface ReaderInterface
- */
 interface ReaderInterface
 {
-    /**
-     * @return \DOMDocument
-     */
-    public function read();
+    public function read(): \DOMDocument;
 }

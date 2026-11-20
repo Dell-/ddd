@@ -1,14 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument;
 
-/**
- * Interface TypeConverterInterface
- */
 interface TypeConverterInterface
 {
     /**
-     * @param array $node
-     * @return mixed
+     * @param array<string, mixed> $node
      */
-    public function convert(array $node);
+    public function convert(array $node): mixed;
 }

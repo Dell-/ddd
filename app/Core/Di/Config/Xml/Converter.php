@@ -1,159 +1,89 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Xml;
 
+use Core\Config\ConverterInterface;
+use Core\Config\Xml\DomToArray;
 use Core\Di\Config\Argument\Service;
 use Core\Di\InstanceClass;
-use Core\Config\ConverterInterface;
 
 /**
- * Class Converter
+ * Converts di.xml into a map of InstanceClass keyed by class or interface name.
  */
 class Converter implements ConverterInterface
 {
-    const INTERFACE_ITEM = 'interface';
+    public const INTERFACE_ITEM = 'interface';
+    public const INSTANCE_ITEM = 'instance';
+    public const ARGUMENT_ITEM = 'argument';
+    public const CALLBACK_ITEM = 'callback';
+    public const ATTRIBUTES = DomToArray::ATTRIBUTES;
+    public const VALUE = DomToArray::VALUE;
 
-    const INSTANCE_ITEM = 'instance';
-
-    const ARGUMENT_ITEM = 'argument';
-
-    const CALLBACK_ITEM = 'callback';
-
-    const ROOT_ITEM = 'config';
-
-    const ATTRIBUTES = '@attributes';
-
-    const VALUE = '@value';
+    public function __construct(
+        private readonly Service $service,
+        private readonly DomToArray $domToArray = new DomToArray(),
+    ) {
+    }
 
     /**
-     * @var Service
+     * @return array<string, InstanceClass>
      */
-    private $service;
+    public function convert(\DOMDocument $document): array
+    {
+        $data = $this->domToArray->convert($document);
+
+        $result = $this->createInstances($data[self::INSTANCE_ITEM] ?? []);
+
+        return $this->createPreferences($data[self::INTERFACE_ITEM] ?? [], $result);
+    }
 
     /**
-     * @var InstanceClass[]
+     * @param list<array<string, mixed>> $items
+     * @return array<string, InstanceClass>
      */
-    private $convertedData = [];
+    private function createInstances(array $items): array
+    {
+        $result = [];
+        foreach ($items as $item) {
+            $class = trim($item[self::ATTRIBUTES]['class'], '\\');
+            $instance = new InstanceClass(
+                $class,
+                $class,
+                $this->service->createArguments($item[self::ARGUMENT_ITEM] ?? []),
+                ($item[self::ATTRIBUTES]['shared'] ?? 'false') === 'true'
+            );
+
+            foreach ($item[self::CALLBACK_ITEM] ?? [] as $callback) {
+                $instance->addCallback(
+                    trim($callback[self::ATTRIBUTES]['method']),
+                    $this->service->createArguments($callback[self::ARGUMENT_ITEM] ?? [])
+                );
+            }
+
+            $result[$instance->getId()] = $instance;
+        }
+
+        return $result;
+    }
 
     /**
-     * Constructor
+     * An interface preference points to the instance definition of its class (if there is one).
      *
-     * @param Service $service
+     * @param list<array<string, mixed>> $items
+     * @param array<string, InstanceClass> $result
+     * @return array<string, InstanceClass>
      */
-    public function __construct(Service $service)
+    private function createPreferences(array $items, array $result): array
     {
-        $this->service = $service;
-    }
+        foreach ($items as $item) {
+            $class = trim($item[self::ATTRIBUTES]['class'], '\\');
+            $interface = trim($item[self::ATTRIBUTES]['name'], '\\');
 
-    /**
-     * @inheritdoc
-     */
-    public function convert(\DOMDocument $document)
-    {
-        $data = [];
-        $this->toArray($document->documentElement, $data);
-        $data = reset($data);
-        $data = reset($data);
-
-        $this->createInstance($data);
-        $this->createPreference($data);
-
-        return $this->convertedData;
-    }
-
-    /**
-     * @param \DOMNode $node
-     * @param array $data
-     */
-    private function toArray(\DOMNode $node, array &$data)
-    {
-        switch ($node->nodeType) {
-            case XML_TEXT_NODE:
-            case XML_COMMENT_NODE:
-            case XML_CDATA_SECTION_NODE:
-                $textContent = trim($node->textContent);
-                if (!empty($textContent)) {
-                    if (!isset($data[self::VALUE])) {
-                        $data[self::VALUE] = '';
-                    }
-                    $data[self::VALUE] .= $node->textContent;
-                }
-                break;
-            case XML_ELEMENT_NODE:
-                $nodeData = [];
-                $name = $node->localName;
-                if (!isset($data[$name])) {
-                    $data[$name] = [];
-                }
-                if ($node->hasAttributes()) {
-                    foreach ($node->attributes as $attributeName => $attribute) {
-                        $nodeData[self::ATTRIBUTES][$attributeName] = $attribute->value;
-                    }
-                }
-                if ($node->hasChildNodes()) {
-                    /** @var \DOMNode $childNode */
-                    foreach ($node->childNodes as $childNode) {
-                        $this->toArray($childNode, $nodeData);
-                    }
-                }
-
-                $data[$name][] = $nodeData;
-                break;
+            $result[$interface] = $result[$class] ?? new InstanceClass($interface, $class);
         }
-    }
 
-    /**
-     * @param array $data
-     * @throws \Exception
-     */
-    private function createInstance(array &$data)
-    {
-        foreach ($data as $name => $list) {
-            if (self::INSTANCE_ITEM === $name) {
-                foreach ($list as $item) {
-                    $class = trim($item[self::ATTRIBUTES]['class'], '\\');
-
-                    $container = new InstanceClass(
-                        $class,
-                        $class,
-                        $this->service->createArguments(isset($item['argument']) ? $item['argument'] : []),
-                        isset($item[self::ATTRIBUTES]['shared'])
-                            ? $item[self::ATTRIBUTES]['shared'] === 'true'
-                            : false
-                    );
-
-                    foreach (isset($item[self::CALLBACK_ITEM]) ? $item[self::CALLBACK_ITEM] : [] as $callback) {
-                        $method = trim($callback[self::ATTRIBUTES]['method']);
-                        $container->addCallback(
-                            $method,
-                            $this->service->createArguments(isset($callback['argument']) ? $callback['argument'] : [])
-                        );
-                    }
-
-                    $this->convertedData[$container->getId()] = $container;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param array $data
-     */
-    private function createPreference(array &$data)
-    {
-        foreach ($data as $name => $list) {
-            if (self::INTERFACE_ITEM === $name) {
-                foreach ($list as $item) {
-                    $class = trim($item[self::ATTRIBUTES]['class'], '\\');
-                    $interface = trim($item[self::ATTRIBUTES]['name'], '\\');
-
-                    if (isset($this->convertedData[$class])) {
-                        $container = & $this->convertedData[$class];
-                    } else {
-                        $container = new InstanceClass($interface, $class);
-                    }
-                    $this->convertedData[$interface] = $container;
-                }
-            }
-        }
+        return $result;
     }
 }

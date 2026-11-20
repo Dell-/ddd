@@ -1,145 +1,89 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
-/**
- * Class File
- */
 class File implements FileInterface
 {
-    /**
-     * @var \SplFileInfo
-     */
-    private $file;
-
-    /**
-     * Constructor
-     *
-     * @param \SplFileInfo $file
-     */
-    public function __construct(\SplFileInfo $file)
+    public function __construct(private readonly \SplFileInfo $file)
     {
         if (!$file->isFile()) {
-            throw new \InvalidArgumentException('This object must indicate to a file.');
+            throw new \InvalidArgumentException('This object must point to a file.');
         }
-        $this->file = $file;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isExists()
+    public function isExists(): bool
     {
         return file_exists($this->getPathname());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isReadable()
+    public function isReadable(): bool
     {
         return $this->file->isReadable();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isWritable()
+    public function isWritable(): bool
     {
         return $this->file->isWritable();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isExecutable()
+    public function isExecutable(): bool
     {
         return $this->file->isExecutable();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getSize()
+    public function getSize(): int|false
     {
         return $this->file->getSize();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPathname()
+    public function getPathname(): string
     {
         return $this->file->getPathname();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->file->getPath();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPerms()
+    public function getPerms(): int|false
     {
         return $this->file->getPerms();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getOwner()
+    public function getOwner(): int|false
     {
         return $this->file->getOwner();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getGroup()
+    public function getGroup(): int|false
     {
         return $this->file->getGroup();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getMTime()
+    public function getMTime(): int|false
     {
         return $this->file->getMTime();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getCTime()
+    public function getCTime(): int|false
     {
         return $this->file->getCTime();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getATime()
+    public function getATime(): int|false
     {
         return $this->file->getATime();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getFilename()
+    public function getFilename(): string
     {
         return $this->file->getFilename();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getExtension()
+    public function getExtension(): string
     {
         return $this->file->getExtension();
     }
