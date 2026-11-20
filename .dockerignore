@@ -2,3 +2,5 @@
 .idea
 vendor
 app/Application/runtime/*.log
+tests/_output
+tests/Support/_generated

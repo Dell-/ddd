@@ -9,8 +9,8 @@ namespace Core\Filesystem\Content\Xml\Dom;
  */
 class MergerFactory
 {
-    public function create(): Merger
+    public function create(MergeRules $rules = new MergeRules()): Merger
     {
-        return new Merger();
+        return new Merger($rules);
     }
 }

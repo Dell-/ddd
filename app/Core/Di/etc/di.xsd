@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="di" type="di"/>
+    <xs:element name="di" type="di">
+        <xs:unique name="uniqueInterface">
+            <xs:selector xpath="interface"/>
+            <xs:field xpath="@name"/>
+        </xs:unique>
+        <xs:unique name="uniqueInstance">
+            <xs:selector xpath="instance"/>
+            <xs:field xpath="@class"/>
+        </xs:unique>
+    </xs:element>
+
     <xs:complexType name="di">
-        <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="interface" type="interface"/>
             <xs:element name="instance" type="instance"/>
         </xs:choice>
     </xs:complexType>
+
     <xs:complexType name="interface">
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="class" type="xs:string" use="required"/>
     </xs:complexType>
+
     <xs:complexType name="instance">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="argument" type="argument"/>
@@ -20,14 +32,24 @@
         <xs:attribute name="shared" type="xs:boolean" use="optional"/>
         <xs:attribute name="virtualClass" type="xs:boolean" use="optional"/>
     </xs:complexType>
+
     <xs:complexType name="callback">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="argument" type="argument"/>
-        </xs:choice>
+        <xs:sequence>
+            <xs:element name="argument" type="argument" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
         <xs:attribute name="method" type="xs:string" use="required"/>
     </xs:complexType>
-    <xs:complexType name="argument">
-        <xs:choice minOccurs="1" maxOccurs="unbounded">
+
+    <xs:complexType name="object">
+        <xs:sequence>
+            <xs:element name="argument" type="argument" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <!-- Exactly one typed value -->
+    <xs:group name="value">
+        <xs:choice>
             <xs:element name="string" type="xs:string"/>
             <xs:element name="object" type="object"/>
             <xs:element name="array" type="array"/>
@@ -36,27 +58,31 @@
             <xs:element name="bool" type="xs:boolean"/>
             <xs:element name="path" type="path"/>
         </xs:choice>
+    </xs:group>
+
+    <xs:complexType name="argument">
+        <xs:group ref="value"/>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
-    <xs:complexType name="path">
-        <xs:complexContent>
-            <xs:extension base="xs:string"/>
-        </xs:complexContent>
-        <xs:attribute name="base" type="xs:string" use="required"/>
-    </xs:complexType>
-    <xs:complexType name="object">
-        <xs:complexContent>
-            <xs:extension base="instance"/>
-        </xs:complexContent>
-    </xs:complexType>
+
     <xs:complexType name="array">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="item" type="item"/>
-        </xs:choice>
+        <xs:sequence>
+            <xs:element name="item" type="item" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
+
+    <!-- An item without a name gets a numeric key -->
     <xs:complexType name="item">
-        <xs:complexContent>
-            <xs:extension base="argument"/>
-        </xs:complexContent>
+        <xs:group ref="value"/>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <!-- <path base="CONSTANT">relative/path</path> -->
+    <xs:complexType name="path">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="base" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 </xs:schema>

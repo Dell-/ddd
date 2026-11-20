@@ -2,7 +2,9 @@
     "name": "dell/ddd",
     "description": "Lightweight PHP framework core: XML configured DI container, routing, request handling",
     "type": "project",
-    "keywords": ["project"],
+    "keywords": [
+        "project"
+    ],
     "license": "MIT",
     "require": {
         "php": ">=8.4",
@@ -16,11 +18,23 @@
             "Application\\": "app/Application/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true,
         "platform": {
             "php": "8.4.0"
         }
+    },
+    "require-dev": {
+        "codeception/codeception": "^5.3",
+        "codeception/module-asserts": "^3.2"
+    },
+    "scripts": {
+        "test": "codecept run"
     }
 }

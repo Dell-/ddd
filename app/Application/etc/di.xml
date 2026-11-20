@@ -15,6 +15,12 @@
                 <argument name="pattern">
                     <string>#routes\.xml$#</string>
                 </argument>
+                <argument name="schema">
+                    <path base="BP">Core/Route/etc/routes.xsd</path>
+                </argument>
+                <argument name="mergeRules">
+                    <object class="Core\Route\Config\Xml\MergeRules"/>
+                </argument>
             </object>
         </argument>
         <argument name="converter">

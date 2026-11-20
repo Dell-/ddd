@@ -36,7 +36,9 @@ final class Bootstrap
                     new \Core\Filesystem\IteratorFactory(),
                     new \Core\Filesystem\File\Reader(),
                     new \Core\Filesystem\Content\Xml\Dom\MergerFactory(),
-                    '#di\.xml$#'
+                    '#di\.xml$#',
+                    BP . '/Core/Di/etc/di.xsd',
+                    new \Core\Di\Config\Xml\MergeRules()
                 ),
                 new \Core\Di\Config\Xml\Converter(
                     new \Core\Di\Config\Argument\Service(

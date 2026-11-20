@@ -26,6 +26,17 @@ docker compose build
 
 Logs are written to `app/Application/runtime/app-YYYY-MM-DD.log`.
 
+`compose.yaml` builds the `dev` target (with dev dependencies and tests).
+The production image is the default target: `docker build -t ddd-app .`
+
+## Tests
+
+[Codeception](https://codeception.com/) unit tests live in `tests/Unit`:
+
+```sh
+docker compose run --rm app vendor/bin/codecept run
+```
+
 ## Structure
 
 - `app/Bootstrap.php` — builds the DI container from `app/Application/etc/di.xml`
@@ -35,3 +46,27 @@ Logs are written to `app/Application/runtime/app-YYYY-MM-DD.log`.
 - `app/Application/Action/` — actions; each extends `Core\Request\Http\Action` or `Core\Request\Cli\Action`
   and returns its output from `execute()`
 - `web/index.php` — HTTP entry point, `bin/console` — console entry point
+
+## Config merging
+
+All `*di.xml` / `*routes.xml` files of `app/Application/etc` are validated against their XSD and merged.
+Order: fewer dots in the file name first, then alphabetical; later files override earlier ones
+(`di.xml` → `local.di.xml`).
+
+| Element | Matched by | On match |
+|---|---|---|
+| `interface` | `name` | attributes overridden (`class`) |
+| `instance` | `class` | attributes overridden, arguments merged by `name` |
+| `argument` | `name` | value replaced as a whole |
+| `callback` | — | always appended |
+| `route` | `method` + `name` | attributes overridden (`action`) |
+
+Example `app/Application/etc/local.di.xml`:
+
+```xml
+<di>
+    <instance class="Monolog\Logger">
+        <argument name="name"><string>my-app</string></argument>
+    </instance>
+</di>
+```

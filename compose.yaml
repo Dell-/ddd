@@ -1,7 +1,9 @@
 services:
   app:
-    build: .
-    image: ddd-app
+    build:
+      context: .
+      target: dev
+    image: ddd-app:dev
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       APP_DEBUG: "1"
@@ -12,3 +14,5 @@ services:
       - ./app:/app/app
       - ./web:/app/web
       - ./bin:/app/bin
+      - ./tests:/app/tests
+      - ./codeception.yml:/app/codeception.yml
