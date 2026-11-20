@@ -11,11 +11,13 @@ use Core\Filesystem\File as FilesystemFile;
  */
 class File extends \FilterIterator
 {
+    #[\Override]
     public function accept(): bool
     {
         return $this->getInnerIterator()->current()->isFile();
     }
 
+    #[\Override]
     public function current(): FilesystemFile
     {
         return new FilesystemFile($this->getInnerIterator()->current());

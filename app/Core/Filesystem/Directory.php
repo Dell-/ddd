@@ -13,46 +13,55 @@ class Directory implements DirectoryInterface
         }
     }
 
+    #[\Override]
     public function isExists(): bool
     {
         return file_exists($this->getPathname());
     }
 
+    #[\Override]
     public function isReadable(): bool
     {
         return $this->directory->isReadable();
     }
 
+    #[\Override]
     public function isWritable(): bool
     {
         return $this->directory->isWritable();
     }
 
+    #[\Override]
     public function getSize(): int|false
     {
         return $this->directory->getSize();
     }
 
+    #[\Override]
     public function getPathname(): string
     {
         return $this->directory->getPathname();
     }
 
+    #[\Override]
     public function getPath(): string
     {
         return $this->directory->getPath();
     }
 
+    #[\Override]
     public function getPerms(): int|false
     {
         return $this->directory->getPerms();
     }
 
+    #[\Override]
     public function getOwner(): int|false
     {
         return $this->directory->getOwner();
     }
 
+    #[\Override]
     public function getGroup(): int|false
     {
         return $this->directory->getGroup();

@@ -12,6 +12,7 @@ use Core\Di\InstanceClass;
  */
 class ObjectType extends AbstractType
 {
+    #[\Override]
     public function convert(array $node): InstanceClass
     {
         $class = trim($node[Converter::ATTRIBUTES]['class'], '\\');

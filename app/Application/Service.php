@@ -4,50 +4,41 @@ declare(strict_types=1);
 
 namespace Application;
 
-use Core\Request\HandlerFactory;
-use Core\Request\RequestException;
-use Core\Request\RequestFactory;
+use Core\Console\Application as ConsoleApplication;
+use Core\Console\Input;
+use Core\Di\ContainerInterface;
+use Core\Http\Emitter;
+use Core\Http\Kernel;
+use Core\Http\Message\ServerRequestFactory;
 use Core\Service\ServiceInterface;
-use Psr\Log\LoggerInterface;
 
+/**
+ * Entry point: the console application in the CLI, the HTTP kernel otherwise.
+ */
 final class Service implements ServiceInterface
 {
-    public function __construct(
-        private readonly LoggerInterface $logger,
-        private readonly RequestFactory $requestFactory,
-        private readonly HandlerFactory $handlerFactory,
-    ) {
+    public function __construct(private readonly ContainerInterface $container)
+    {
     }
 
+    #[\Override]
     public function run(): int
     {
-        $isCli = PHP_SAPI === 'cli';
-        $exitCode = 0;
+        if (PHP_SAPI === 'cli') {
+            $console = $this->container->get(ConsoleApplication::class);
+            \assert($console instanceof ConsoleApplication);
 
-        try {
-            $output = $this->handlerFactory->create()->handle($this->requestFactory->create());
-        } catch (RequestException $e) {
-            $this->logger->notice($e->getMessage(), ['exception' => $e]);
-            $exitCode = 1;
-            $output = $e->getMessage();
-            if (!$isCli) {
-                $status = $e->getCode();
-                http_response_code($status >= 400 && $status < 600 ? $status : 400);
-            }
+            return $console->run(Input::fromArgv($_SERVER['argv'] ?? []));
         }
 
-        $this->logger->debug(sprintf(
-            'time: %f sec; memory: %d kb',
-            microtime(true) - BEGIN_TIME,
-            intdiv(memory_get_usage(), 1024)
-        ), ['callable' => __METHOD__]);
+        $kernel = $this->container->get(Kernel::class);
+        $emitter = $this->container->get(Emitter::class);
+        \assert($kernel instanceof Kernel && $emitter instanceof Emitter);
 
-        if ($isCli) {
-            fwrite($exitCode === 0 ? STDOUT : STDERR, $output === '' ? '' : rtrim($output, "\n") . "\n");
-        } else {
-            echo $output;
-        }
+        $request = ServerRequestFactory::fromGlobals();
+        $response = $kernel->handle($request);
+        $emitter->emit($response, $request->getMethod() !== 'HEAD');
 
-        return $exitCode;
+        return $response->getStatusCode() < 400 ? 0 : 1;
     }
 }

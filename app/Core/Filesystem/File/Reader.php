@@ -8,6 +8,7 @@ use Core\Filesystem\FileInterface;
 
 class Reader implements ReaderInterface
 {
+    #[\Override]
     public function read(FileInterface $file): string
     {
         $content = $file->isReadable() ? file_get_contents($file->getPathname()) : false;

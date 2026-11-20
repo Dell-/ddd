@@ -6,7 +6,7 @@ namespace Core\Helper;
 
 class StringHelper
 {
-    public const HASH_VER = 'v-0.0.0.1';
+    public const string HASH_VER = 'v-0.0.0.1';
 
     /**
      * Short (non-cryptographic) hash of the string.

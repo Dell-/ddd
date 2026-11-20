@@ -1,0 +1,16 @@
+# HTTP tests against the real server (php -S) with the test configuration (tests/Support/Data/etc)
+actor: ApiTester
+suite_namespace: Tests\Api
+modules:
+    enabled:
+        - Asserts
+        - PhpBrowser:
+            url: http://127.0.0.1:8090
+        - REST:
+            url: http://127.0.0.1:8090
+            depends: PhpBrowser
+extensions:
+    enabled:
+        - Codeception\Extension\RunProcess:
+            0: APP_ETC_DIR=tests/Support/Data/etc exec php -S 127.0.0.1:8090 -t web web/index.php
+            sleep: 1

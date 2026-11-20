@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Application\Action\Http;
 
-use Core\Request\Http\Action;
+use Core\Http\Action\AbstractAction;
+use Core\Http\Message\ServerRequestInterface;
 
-class Index extends Action
+final class Index extends AbstractAction
 {
-    public function execute(): string
+    #[\Override]
+    public function __invoke(ServerRequestInterface $request): string
     {
         return static::class;
     }

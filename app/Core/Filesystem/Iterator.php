@@ -26,31 +26,37 @@ class Iterator implements \SeekableIterator
         $this->iterator = clone $this->iterator;
     }
 
+    #[\Override]
     public function current(): \SplFileInfo
     {
         return $this->iterator->current();
     }
 
+    #[\Override]
     public function next(): void
     {
         $this->iterator->next();
     }
 
+    #[\Override]
     public function key(): string
     {
         return $this->iterator->key();
     }
 
+    #[\Override]
     public function valid(): bool
     {
         return $this->iterator->valid();
     }
 
+    #[\Override]
     public function rewind(): void
     {
         $this->iterator->rewind();
     }
 
+    #[\Override]
     public function seek(int $offset): void
     {
         $this->iterator->seek($offset);

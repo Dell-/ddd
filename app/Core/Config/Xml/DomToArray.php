@@ -11,8 +11,8 @@ namespace Core\Config\Xml;
  */
 class DomToArray
 {
-    public const ATTRIBUTES = '@attributes';
-    public const VALUE = '@value';
+    public const string ATTRIBUTES = '@attributes';
+    public const string VALUE = '@value';
 
     /**
      * @return array<string, mixed>

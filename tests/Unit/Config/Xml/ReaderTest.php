@@ -70,8 +70,8 @@ final class ReaderTest extends Unit
     public function testInvalidFileIsReportedWithItsName(): void
     {
         $directory = $this->createTempDirectory([
-            'routes.xml' => '<routes><route method="GET" name="/" action="A"/></routes>',
-            'bad.routes.xml' => '<routes><route method="FOO" name="/" action="A"/></routes>',
+            'routes.xml' => '<routes><route name="a" method="GET" path="/" action="A"/></routes>',
+            'bad.routes.xml' => '<routes><route name="a" method="FOO" path="/" action="A"/></routes>',
         ]);
 
         $this->expectException(\RuntimeException::class);

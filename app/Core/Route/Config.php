@@ -8,14 +8,14 @@ use Core\Config\ConverterInterface;
 use Core\Config\ReaderInterface;
 
 /**
- * Routes from routes.xml: method + name => action class.
+ * Routes and console commands from routes.xml (read on first use).
  */
 class Config
 {
     /**
-     * @var array<string, array<string, string>>|null
+     * @var array{routes: array<string, Route>, commands: array<string, string>}|null
      */
-    private ?array $routes = null;
+    private ?array $data = null;
 
     public function __construct(
         private readonly ReaderInterface $reader,
@@ -24,12 +24,39 @@ class Config
     }
 
     /**
-     * Returns the action class of the route or null if there is no such route.
+     * HTTP routes in declaration order, keyed by name.
+     *
+     * @return array<string, Route>
      */
-    public function match(string $method, string $name): ?string
+    public function getRoutes(): array
     {
-        $this->routes ??= $this->converter->convert($this->reader->read());
+        return $this->load()['routes'];
+    }
 
-        return $this->routes[strtoupper($method)][$name] ?? null;
+    public function getRoute(string $name): ?Route
+    {
+        return $this->load()['routes'][$name] ?? null;
+    }
+
+    /**
+     * Action class of the console command.
+     */
+    public function getCommand(string $name): ?string
+    {
+        return $this->load()['commands'][$name] ?? null;
+    }
+
+    /**
+     * @return array{routes: array<string, Route>, commands: array<string, string>}
+     */
+    private function load(): array
+    {
+        if ($this->data === null) {
+            /** @var array{routes: array<string, Route>, commands: array<string, string>} $data */
+            $data = $this->converter->convert($this->reader->read()) + ['routes' => [], 'commands' => []];
+            $this->data = $data;
+        }
+
+        return $this->data;
     }
 }

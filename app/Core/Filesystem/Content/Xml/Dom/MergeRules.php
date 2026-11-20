@@ -12,17 +12,17 @@ namespace Core\Filesystem\Content\Xml\Dom;
  *   key attributes configured (or without one of them) is appended.
  * - Replace content: the children of such an element are replaced as a whole instead of merged.
  */
-class MergeRules
+readonly class MergeRules
 {
-    public const ANY_ELEMENT = '*';
+    public const string ANY_ELEMENT = '*';
 
     /**
      * @param array<string, list<string>> $keyAttributes element local name (or "*") => key attribute names
      * @param list<string> $replaceContent local names of elements whose content is replaced
      */
     public function __construct(
-        private readonly array $keyAttributes = [self::ANY_ELEMENT => ['name']],
-        private readonly array $replaceContent = [],
+        private array $keyAttributes = [self::ANY_ELEMENT => ['name']],
+        private array $replaceContent = [],
     ) {
     }
 

@@ -21,6 +21,7 @@ class Container implements ContainerInterface
         $this->shared[static::class] = $this;
     }
 
+    #[\Override]
     public function get(string $className): object
     {
         $className = $this->resolveClassName($className);
@@ -28,6 +29,7 @@ class Container implements ContainerInterface
         return $this->shared[$className] ??= $this->create($className);
     }
 
+    #[\Override]
     public function create(string $className, array $arguments = []): object
     {
         $className = $this->normalize($className);
@@ -54,6 +56,7 @@ class Container implements ContainerInterface
         return $object;
     }
 
+    #[\Override]
     public function callMethod(object $object, string $methodName, array $arguments = []): mixed
     {
         $classReflection = new \ReflectionClass($object);
@@ -117,8 +120,8 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Builds the positional argument list: explicit arguments first, then defaults,
-     * then objects resolved from the container by their declared class type.
+     * Builds the positional argument list: explicit arguments first, then classes configured in di.xml,
+     * then default values, then other objects resolved from the container by their declared class type.
      *
      * @param \ReflectionParameter[] $parameters
      * @param array<string, mixed> $arguments
@@ -135,14 +138,22 @@ class Container implements ContainerInterface
                 continue;
             }
 
+            $type = $parameter->getType();
+            $class = $type instanceof \ReflectionNamedType && !$type->isBuiltin() ? $type->getName() : null;
+
+            // a class configured in di.xml wins over the default value
+            if ($class !== null && $this->config->hasInstance($this->normalize($class))) {
+                $result[] = $this->get($class);
+                continue;
+            }
+
             if ($parameter->isDefaultValueAvailable()) {
                 $result[] = $parameter->getDefaultValue();
                 continue;
             }
 
-            $type = $parameter->getType();
-            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-                $result[] = $this->get($type->getName());
+            if ($class !== null) {
+                $result[] = $this->get($class);
                 continue;
             }
 

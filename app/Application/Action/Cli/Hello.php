@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Application\Action\Cli;
 
-use Core\Request\Cli\Action;
+use Core\Console\CommandInterface;
+use Core\Console\Input;
+use Core\Console\Output;
 
 /**
- * Example console action: `bin/console hello --name=World`.
+ * Example console command: `bin/console hello --name=World`.
  */
-class Hello extends Action
+final class Hello implements CommandInterface
 {
-    public function execute(): string
+    #[\Override]
+    public function run(Input $input, Output $output): int
     {
-        return sprintf('Hello, %s!', $this->request->getData('name', 'World'));
+        $output->writeln(sprintf('Hello, %s!', $input->getOption('name', 'World')));
+
+        return self::SUCCESS;
     }
 }

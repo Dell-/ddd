@@ -11,11 +11,13 @@ use Core\Filesystem\Directory as FilesystemDirectory;
  */
 class Directory extends \FilterIterator
 {
+    #[\Override]
     public function accept(): bool
     {
         return $this->getInnerIterator()->current()->isDir();
     }
 
+    #[\Override]
     public function current(): FilesystemDirectory
     {
         return new FilesystemDirectory($this->getInnerIterator()->current());

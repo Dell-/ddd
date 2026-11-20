@@ -11,6 +11,7 @@ use Core\Di\Config\Xml\Converter;
  */
 class PathType extends AbstractType
 {
+    #[\Override]
     public function convert(array $node): string
     {
         $const = $node[Converter::ATTRIBUTES]['base'] ?? '';

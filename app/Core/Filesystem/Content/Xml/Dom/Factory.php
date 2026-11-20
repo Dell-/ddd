@@ -6,8 +6,8 @@ namespace Core\Filesystem\Content\Xml\Dom;
 
 class Factory
 {
-    public const XML_VERSION = '1.0';
-    public const XML_ENCODING = 'UTF-8';
+    public const string XML_VERSION = '1.0';
+    public const string XML_ENCODING = 'UTF-8';
 
     public function create(string $xmlContent): \DOMDocument
     {

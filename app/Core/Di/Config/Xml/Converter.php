@@ -12,24 +12,25 @@ use Core\Di\InstanceClass;
 /**
  * Converts di.xml into a map of InstanceClass keyed by class or interface name.
  */
-class Converter implements ConverterInterface
+readonly class Converter implements ConverterInterface
 {
-    public const INTERFACE_ITEM = 'interface';
-    public const INSTANCE_ITEM = 'instance';
-    public const ARGUMENT_ITEM = 'argument';
-    public const CALLBACK_ITEM = 'callback';
-    public const ATTRIBUTES = DomToArray::ATTRIBUTES;
-    public const VALUE = DomToArray::VALUE;
+    public const string INTERFACE_ITEM = 'interface';
+    public const string INSTANCE_ITEM = 'instance';
+    public const string ARGUMENT_ITEM = 'argument';
+    public const string CALLBACK_ITEM = 'callback';
+    public const string ATTRIBUTES = DomToArray::ATTRIBUTES;
+    public const string VALUE = DomToArray::VALUE;
 
     public function __construct(
-        private readonly Service $service,
-        private readonly DomToArray $domToArray = new DomToArray(),
+        private Service $service,
+        private DomToArray $domToArray = new DomToArray(),
     ) {
     }
 
     /**
      * @return array<string, InstanceClass>
      */
+    #[\Override]
     public function convert(\DOMDocument $document): array
     {
         $data = $this->domToArray->convert($document);

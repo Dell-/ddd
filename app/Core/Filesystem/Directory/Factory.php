@@ -9,6 +9,7 @@ use Core\Filesystem\DirectoryInterface;
 
 class Factory implements FactoryInterface
 {
+    #[\Override]
     public function create(string $name): DirectoryInterface
     {
         $directory = new \SplFileInfo($name);

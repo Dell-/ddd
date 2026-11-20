@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Core\Di\ContainerInterface;
 use Core\Service\ServiceInterface;
 
 /**
@@ -19,19 +20,40 @@ defined('BP') or define('BP', __DIR__);
  */
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
+/**
+ * Configuration directory (di.xml, routes.xml), can be changed with the APP_ETC_DIR environment variable
+ */
+defined('APP_ETC') or define('APP_ETC', rtrim(getenv('APP_ETC_DIR') ?: BP . '/Application/etc', '/\\'));
+
+/**
+ * Debug mode: error details in responses (APP_DEBUG environment variable)
+ */
+defined('APP_DEBUG') or define('APP_DEBUG', filter_var(getenv('APP_DEBUG') ?: '0', FILTER_VALIDATE_BOOL));
+
 require_once BP . '/../vendor/autoload.php';
 
 final class Bootstrap
 {
     /**
-     * Builds the DI container from Application/etc/di.xml and creates the application service.
+     * Creates the application service from the configuration directory.
      */
-    public static function createApplication(): ServiceInterface
+    public static function createApplication(string $configDirectory = APP_ETC): ServiceInterface
     {
-        $container = new \Core\Di\Container(
+        $service = self::createContainer($configDirectory)->create(ServiceInterface::class);
+        \assert($service instanceof ServiceInterface);
+
+        return $service;
+    }
+
+    /**
+     * Builds the DI container from di.xml files of the configuration directory.
+     */
+    public static function createContainer(string $configDirectory = APP_ETC): ContainerInterface
+    {
+        return new \Core\Di\Container(
             new \Core\Di\Config(
                 new \Core\Config\Xml\Reader(
-                    BP . '/Application/etc',
+                    $configDirectory,
                     new \Core\Filesystem\Directory\Factory(),
                     new \Core\Filesystem\IteratorFactory(),
                     new \Core\Filesystem\File\Reader(),
@@ -47,10 +69,5 @@ final class Bootstrap
                 )
             )
         );
-
-        $service = $container->create(ServiceInterface::class);
-        \assert($service instanceof ServiceInterface);
-
-        return $service;
     }
 }

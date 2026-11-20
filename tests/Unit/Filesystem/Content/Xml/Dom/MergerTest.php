@@ -71,20 +71,36 @@ final class MergerTest extends Unit
                 '<di><instance class="L"><callback method="push"/></instance></di>',
             ],
         ];
-        yield 'routes: same name and other method is appended' => [
+        yield 'routes: other name is appended' => [
             $routes,
-            '<routes><route method="GET" name="/" action="A"/><route method="POST" name="/" action="B"/></routes>',
+            '<routes><route name="a" method="GET" path="/" action="A"/><route name="b" method="POST" path="/" action="B"/></routes>',
             [
-                '<routes><route method="GET" name="/" action="A"/></routes>',
-                '<routes><route method="POST" name="/" action="B"/></routes>',
+                '<routes><route name="a" method="GET" path="/" action="A"/></routes>',
+                '<routes><route name="b" method="POST" path="/" action="B"/></routes>',
             ],
         ];
-        yield 'routes: action is overridden' => [
+        yield 'routes: route with the same name is overridden' => [
             $routes,
-            '<routes><route method="GET" name="/" action="B"/></routes>',
+            '<routes><route name="a" method="GET PUT" path="/x" action="B"/></routes>',
             [
-                '<routes><route method="GET" name="/" action="A"/></routes>',
-                '<routes><route method="GET" name="/" action="B"/></routes>',
+                '<routes><route name="a" method="GET" path="/" action="A"/></routes>',
+                '<routes><route name="a" method="GET PUT" path="/x" action="B"/></routes>',
+            ],
+        ];
+        yield 'routes: the trailing-slash policy is overridden by a later file' => [
+            $routes,
+            '<routes trailing-slash="strict"><route name="a" method="GET" path="/" action="A" trailing-slash="ignore"/></routes>',
+            [
+                '<routes trailing-slash="redirect"><route name="a" method="GET" path="/" action="A"/></routes>',
+                '<routes trailing-slash="strict"><route name="a" trailing-slash="ignore"/></routes>',
+            ],
+        ];
+        yield 'routes: commands are merged by name' => [
+            $routes,
+            '<routes><command name="hello" action="B"/><command name="bye" action="C"/></routes>',
+            [
+                '<routes><command name="hello" action="A"/></routes>',
+                '<routes><command name="hello" action="B"/><command name="bye" action="C"/></routes>',
             ],
         ];
         yield 'default rules: text is replaced' => [
@@ -163,9 +179,9 @@ final class MergerTest extends Unit
     public function testSchemaValidationFailureIsReported(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Duplicate key-sequence ['GET', '/']");
+        $this->expectExceptionMessage("Duplicate key-sequence ['a']");
         (new Merger())->merge(
-            '<routes><route method="GET" name="/" action="A"/><route method="GET" name="/" action="B"/></routes>',
+            '<routes><route name="a" method="GET" path="/" action="A"/><route name="a" method="POST" path="/" action="B"/></routes>',
             BP . '/Core/Route/etc/routes.xsd'
         );
     }
@@ -173,9 +189,12 @@ final class MergerTest extends Unit
     public function testSchemaValidationPasses(): void
     {
         $merger = new Merger();
-        $merger->merge('<routes><route method="CLI" name="x" action="A"/></routes>', BP . '/Core/Route/etc/routes.xsd');
+        $merger->merge(
+            '<routes><route name="x" method="PUT PATCH" path="/x/{id:\\d+}" action="A"/><command name="c" action="C"/></routes>',
+            BP . '/Core/Route/etc/routes.xsd'
+        );
 
-        $this->assertStringContainsString('method="CLI"', $merger->getContent());
+        $this->assertStringContainsString('method="PUT PATCH"', $merger->getContent());
     }
 
     public function testResultBeforeMergeIsAnError(): void

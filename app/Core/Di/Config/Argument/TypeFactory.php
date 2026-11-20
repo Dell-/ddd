@@ -6,6 +6,7 @@ namespace Core\Di\Config\Argument;
 
 use Core\Di\Config\Argument\Type\ArrayType;
 use Core\Di\Config\Argument\Type\BoolType;
+use Core\Di\Config\Argument\Type\EnvType;
 use Core\Di\Config\Argument\Type\FloatType;
 use Core\Di\Config\Argument\Type\IntType;
 use Core\Di\Config\Argument\Type\ObjectType;
@@ -26,6 +27,7 @@ class TypeFactory implements TypeFactoryInterface
         'int' => IntType::class,
         'bool' => BoolType::class,
         'path' => PathType::class,
+        'env' => EnvType::class,
     ];
 
     /**
@@ -33,6 +35,7 @@ class TypeFactory implements TypeFactoryInterface
      */
     private array $instances = [];
 
+    #[\Override]
     public function create(string $type): TypeConverterInterface
     {
         if (!isset($this->types[$type])) {
@@ -42,6 +45,7 @@ class TypeFactory implements TypeFactoryInterface
         return $this->instances[$type] ??= new $this->types[$type]($this);
     }
 
+    #[\Override]
     public function convertValue(array $node): mixed
     {
         unset($node[Converter::ATTRIBUTES], $node[Converter::VALUE]);

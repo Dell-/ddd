@@ -6,6 +6,7 @@ namespace Core\Di\Config\Argument\Type;
 
 class FloatType extends AbstractType
 {
+    #[\Override]
     public function convert(array $node): float
     {
         return (float) $this->value($node);

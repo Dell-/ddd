@@ -17,20 +17,21 @@ use Core\Filesystem\IteratorFactory;
  * Reads all XML files of a directory whose names match the pattern, validates each one
  * against the schema (if given) and merges them in file name order.
  */
-class Reader implements ReaderInterface
+readonly class Reader implements ReaderInterface
 {
     public function __construct(
-        private readonly string $directory,
-        private readonly Directory\FactoryInterface $directoryFactory,
-        private readonly IteratorFactory $iteratorFactory,
-        private readonly File\ReaderInterface $fileReader,
-        private readonly MergerFactory $mergerFactory,
-        private readonly string $pattern = '#di\.xml$#',
-        private readonly ?string $schema = null,
-        private readonly MergeRules $mergeRules = new MergeRules(),
+        private string $directory,
+        private Directory\FactoryInterface $directoryFactory,
+        private IteratorFactory $iteratorFactory,
+        private File\ReaderInterface $fileReader,
+        private MergerFactory $mergerFactory,
+        private string $pattern = '#di\.xml$#',
+        private ?string $schema = null,
+        private MergeRules $mergeRules = new MergeRules(),
     ) {
     }
 
+    #[\Override]
     public function read(): \DOMDocument
     {
         $iterator = $this->iteratorFactory->create($this->directoryFactory->create($this->directory));

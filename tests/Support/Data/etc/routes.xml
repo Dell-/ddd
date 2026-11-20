@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test routes: a REST resource, uploads, downloads, negotiation and helpers to inspect requests -->
+<routes trailing-slash="redirect" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../app/Core/Route/etc/routes.xsd">
+    <route name="home" method="GET" path="/" action="Application\Action\Http\Index"/>
+
+    <route name="item.list" method="GET" path="/items" action="Tests\Support\Fixture\Http\ItemList">
+        <query name="page" requirement="\d+" default="1"/>
+        <query name="limit" requirement="\d+" default="3"/>
+    </route>
+    <route name="item.create" method="POST" path="/items" action="Tests\Support\Fixture\Http\ItemCreate"/>
+    <route name="item.show" method="GET" path="/items/{id:\d+}" action="Tests\Support\Fixture\Http\ItemShow"/>
+    <route name="item.update" method="PUT PATCH" path="/items/{id:\d+}" action="Tests\Support\Fixture\Http\ItemUpdate"/>
+    <route name="item.delete" method="DELETE" path="/items/{id:\d+}" action="Tests\Support\Fixture\Http\ItemDelete"/>
+
+    <route name="docs" method="GET" path="/docs/" action="Tests\Support\Fixture\Http\EchoRequest"/>
+    <route name="strict" method="GET POST" path="/strict" action="Tests\Support\Fixture\Http\EchoRequest" trailing-slash="strict"/>
+    <route name="lenient" method="GET" path="/lenient/{id}" action="Tests\Support\Fixture\Http\EchoRequest" trailing-slash="ignore"/>
+    <route name="search" method="GET" path="/search" action="Tests\Support\Fixture\Http\EchoRequest">
+        <query name="q" required="true"/>
+        <query name="tags" requirement="[a-z]+"/>
+    </route>
+    <route name="echo" method="GET POST PUT PATCH DELETE" path="/echo" action="Tests\Support\Fixture\Http\EchoRequest"/>
+    <route name="echo.path" method="GET" path="/echo/{tail:.+}" action="Tests\Support\Fixture\Http\EchoRequest"/>
+    <route name="archive" method="GET" path="/archive/{year:\d{4}}/{slug}" action="Tests\Support\Fixture\Http\EchoRequest"/>
+    <route name="webhook" method="POST" path="/webhooks/payment" action="Tests\Support\Fixture\Http\EchoRequest"/>
+
+    <route name="upload" method="POST PUT PATCH" path="/upload" action="Tests\Support\Fixture\Http\Upload"/>
+    <route name="upload.raw" method="PUT" path="/files/{name}" action="Tests\Support\Fixture\Http\RawUpload"/>
+    <route name="download" method="GET" path="/download/{name}" action="Tests\Support\Fixture\Http\Download"/>
+
+    <route name="view" method="GET" path="/view" action="Tests\Support\Fixture\Http\DataView"/>
+    <route name="view.template" method="GET" path="/view/template" action="Tests\Support\Fixture\Http\TemplateView"/>
+    <route name="records" method="GET POST" path="/records" action="Tests\Support\Fixture\Http\Records"/>
+
+    <route name="head.get" method="GET" path="/head" action="Tests\Support\Fixture\Http\RouteName"/>
+    <route name="head.explicit" method="HEAD" path="/head" action="Tests\Support\Fixture\Http\RouteName"/>
+    <route name="options.explicit" method="OPTIONS" path="/custom-options" action="Tests\Support\Fixture\Http\RouteName"/>
+
+    <route name="fail" method="GET" path="/fail" action="Tests\Support\Fixture\Http\Fail"/>
+    <route name="not-an-action" method="GET" path="/not-an-action" action="Tests\Support\Fixture\NotAnAction"/>
+
+    <command name="hello" action="Application\Action\Cli\Hello"/>
+    <command name="echo" action="Tests\Support\Fixture\Cli\EchoCommand"/>
+    <command name="fail" action="Tests\Support\Fixture\Cli\FailCommand"/>
+</routes>

@@ -4,13 +4,25 @@
     <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
     <interface name="Core\Filesystem\Directory\FactoryInterface" class="Core\Filesystem\Directory\Factory"/>
     <interface name="Core\Filesystem\File\ReaderInterface" class="Core\Filesystem\File\Reader"/>
+    <interface name="Core\Route\UrlGeneratorInterface" class="Core\Route\Router"/>
     <interface name="Psr\Log\LoggerInterface" class="Monolog\Logger"/>
+
+    <!-- PSR-17 factories -->
+    <interface name="Psr\Http\Message\RequestFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+    <interface name="Psr\Http\Message\ResponseFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+    <interface name="Psr\Http\Message\ServerRequestFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+    <interface name="Psr\Http\Message\StreamFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+    <interface name="Psr\Http\Message\UploadedFileFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+    <interface name="Psr\Http\Message\UriFactoryInterface" class="Core\Http\Message\HttpFactory"/>
+
     <instance class="Core\Di\Container" shared="true"/>
+    <instance class="Core\Http\Message\HttpFactory" shared="true"/>
+    <instance class="Core\Route\Router" shared="true"/>
     <instance class="Core\Route\Config" shared="true">
         <argument name="reader">
             <object class="Core\Config\Xml\Reader">
                 <argument name="directory">
-                    <path base="BP">Application/etc</path>
+                    <path base="APP_ETC">.</path>
                 </argument>
                 <argument name="pattern">
                     <string>#routes\.xml$#</string>
@@ -27,6 +39,58 @@
             <object class="Core\Route\Config\Xml\Converter"/>
         </argument>
     </instance>
+
+    <!-- HTTP: PSR-15 middleware pipeline, outermost first -->
+    <instance class="Core\Http\Kernel" shared="true">
+        <argument name="handler">
+            <object class="Core\Http\RouteHandler"/>
+        </argument>
+        <argument name="middleware">
+            <!-- SecurityHeaders and Cors are outside ErrorHandler, so error responses get their headers too -->
+            <array>
+                <item><object class="Core\Http\Middleware\SecurityHeadersMiddleware"/></item>
+                <item>
+                    <object class="Core\Http\Middleware\CorsMiddleware">
+                        <argument name="allowedOrigins"><env name="APP_CORS_ORIGINS" default=""/></argument>
+                    </object>
+                </item>
+                <item>
+                    <object class="Core\Http\Middleware\ErrorHandlerMiddleware">
+                        <argument name="debug"><env name="APP_DEBUG" type="bool" default="false"/></argument>
+                    </object>
+                </item>
+                <item>
+                    <object class="Core\Http\Middleware\BodySizeLimitMiddleware">
+                        <argument name="maxBytes"><env name="APP_MAX_BODY_SIZE" type="int" default="10485760"/></argument>
+                    </object>
+                </item>
+                <item><object class="Core\Http\Middleware\BodyParsingMiddleware"/></item>
+                <item><object class="Core\Http\Middleware\MethodOverrideMiddleware"/></item>
+                <item>
+                    <object class="Core\Http\Middleware\CsrfMiddleware">
+                        <argument name="secret"><env name="APP_SECRET"/></argument>
+                    </object>
+                </item>
+            </array>
+        </argument>
+    </instance>
+    <instance class="Core\Http\Responder" shared="true"/>
+    <!-- Response formats in the order of preference; add a RendererInterface here for a new format,
+         set HtmlRenderer's "engine" (TemplateEngineInterface) for HTML templates -->
+    <instance class="Core\Http\View\ViewRenderer" shared="true">
+        <argument name="renderers">
+            <array>
+                <item><object class="Core\Http\View\JsonRenderer"/></item>
+                <item><object class="Core\Http\View\XmlRenderer"/></item>
+                <item><object class="Core\Http\View\HtmlRenderer"/></item>
+                <item><object class="Core\Http\View\TextRenderer"/></item>
+            </array>
+        </argument>
+    </instance>
+    <instance class="Core\Console\Application" shared="true">
+        <argument name="debug"><env name="APP_DEBUG" type="bool" default="false"/></argument>
+    </instance>
+
     <instance class="Monolog\Logger" shared="true">
         <argument name="name">
             <string>app</string>
@@ -41,11 +105,6 @@
                         <int>5</int>
                     </argument>
                 </object>
-            </argument>
-        </callback>
-        <callback method="pushHandler">
-            <argument name="handler">
-                <object class="Monolog\Handler\ChromePHPHandler"/>
             </argument>
         </callback>
     </instance>

@@ -57,6 +57,7 @@
             <xs:element name="int" type="xs:int"/>
             <xs:element name="bool" type="xs:boolean"/>
             <xs:element name="path" type="path"/>
+            <xs:element name="env" type="env"/>
         </xs:choice>
     </xs:group>
 
@@ -75,6 +76,22 @@
     <xs:complexType name="item">
         <xs:group ref="value"/>
         <xs:attribute name="name" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <!-- <env name="APP_SECRET" type="string|int|float|bool" default="..."/> -->
+    <xs:complexType name="env">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="default" type="xs:string" use="optional"/>
+        <xs:attribute name="type" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="string"/>
+                    <xs:enumeration value="int"/>
+                    <xs:enumeration value="float"/>
+                    <xs:enumeration value="bool"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <!-- <path base="CONSTANT">relative/path</path> -->

@@ -3,33 +3,90 @@
     <xs:element name="routes" type="routes">
         <xs:unique name="uniqueRoute">
             <xs:selector xpath="route"/>
-            <xs:field xpath="@method"/>
+            <xs:field xpath="@name"/>
+        </xs:unique>
+        <xs:unique name="uniqueCommand">
+            <xs:selector xpath="command"/>
             <xs:field xpath="@name"/>
         </xs:unique>
     </xs:element>
 
     <xs:complexType name="routes">
-        <xs:sequence>
-            <xs:element name="route" type="route" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="route" type="route">
+                <xs:unique name="uniqueQuery">
+                    <xs:selector xpath="query"/>
+                    <xs:field xpath="@name"/>
+                </xs:unique>
+            </xs:element>
+            <xs:element name="command" type="command"/>
+        </xs:choice>
+        <!-- Default policy of all routes; "redirect" when omitted -->
+        <xs:attribute name="trailing-slash" type="trailingSlash" use="optional"/>
     </xs:complexType>
 
+    <!-- The other form of a path ("/items/" for "/items"):
+         redirect - 301 (GET/HEAD) / 308 to the configured form; strict - 404; ignore - served as well (duplicate URLs) -->
+    <xs:simpleType name="trailingSlash">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="redirect"/>
+            <xs:enumeration value="strict"/>
+            <xs:enumeration value="ignore"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- HTTP route: <route name="item.show" method="GET" path="/items/{id:\d+}" action="Class"/> -->
     <xs:complexType name="route">
-        <xs:attribute name="method" type="method" use="required"/>
+        <xs:sequence>
+            <xs:element name="query" type="query" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="method" type="methods" use="required"/>
+        <xs:attribute name="path" type="path" use="required"/>
+        <xs:attribute name="action" type="xs:string" use="required"/>
+        <!-- Overrides the trailing-slash policy of <routes> -->
+        <xs:attribute name="trailing-slash" type="trailingSlash" use="optional"/>
+    </xs:complexType>
+
+    <!-- Declared query parameter: validated (400), default added, used by URL generation -->
+    <xs:complexType name="query">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="requirement" type="xs:string" use="optional"/>
+        <xs:attribute name="default" type="xs:string" use="optional"/>
+        <xs:attribute name="required" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+
+    <!-- Console command: <command name="hello" action="Class"/> -->
+    <xs:complexType name="command">
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="action" type="xs:string" use="required"/>
     </xs:complexType>
 
+    <xs:simpleType name="path">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="/.*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Space separated list, e.g. "PUT PATCH" -->
+    <xs:simpleType name="methods">
+        <xs:restriction>
+            <xs:simpleType>
+                <xs:list itemType="method"/>
+            </xs:simpleType>
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="method">
         <xs:restriction base="xs:string">
             <xs:enumeration value="GET"/>
+            <xs:enumeration value="HEAD"/>
             <xs:enumeration value="POST"/>
             <xs:enumeration value="PUT"/>
             <xs:enumeration value="PATCH"/>
             <xs:enumeration value="DELETE"/>
-            <xs:enumeration value="HEAD"/>
             <xs:enumeration value="OPTIONS"/>
-            <xs:enumeration value="CLI"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

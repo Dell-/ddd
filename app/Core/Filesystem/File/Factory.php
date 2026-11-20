@@ -9,6 +9,7 @@ use Core\Filesystem\FileInterface;
 
 class Factory implements FactoryInterface
 {
+    #[\Override]
     public function create(string $filename): FileInterface
     {
         $file = new \SplFileInfo($filename);

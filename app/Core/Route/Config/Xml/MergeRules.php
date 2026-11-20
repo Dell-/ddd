@@ -7,12 +7,12 @@ namespace Core\Route\Config\Xml;
 use Core\Filesystem\Content\Xml\Dom\MergeRules as BaseMergeRules;
 
 /**
- * routes.xml merge rules: a route is identified by its method and name.
+ * routes.xml merge rules: routes, their query parameters and commands are identified by name.
  */
-final class MergeRules extends BaseMergeRules
+final readonly class MergeRules extends BaseMergeRules
 {
     public function __construct()
     {
-        parent::__construct(['route' => ['method', 'name']]);
+        parent::__construct(['route' => ['name'], 'query' => ['name'], 'command' => ['name']]);
     }
 }

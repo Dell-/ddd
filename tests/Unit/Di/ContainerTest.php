@@ -17,6 +17,7 @@ use Tests\Support\Fixture\Leaf;
 use Tests\Support\Fixture\Service;
 use Tests\Support\Fixture\ServiceInterface;
 use Tests\Support\Fixture\Unresolvable;
+use Tests\Support\Fixture\WithDefaults;
 use Tests\Support\StringReader;
 
 final class ContainerTest extends Unit
@@ -180,6 +181,45 @@ final class ContainerTest extends Unit
         $this->createContainer(
             '<instance class="' . self::NS . 'Leaf"><argument name="number"><date>1</date></argument></instance>'
         );
+    }
+
+    public function testConfiguredClassWinsOverDefaultValue(): void
+    {
+        $this->assertSame(1, $this->createContainer()->create(WithDefaults::class)->leaf->number, 'default when not configured');
+
+        $container = $this->createContainer(
+            '<instance class="' . self::NS . 'Leaf" shared="true"><argument name="number"><int>9</int></argument></instance>'
+        );
+        $this->assertSame(9, $container->create(WithDefaults::class)->leaf->number, 'configured service');
+    }
+
+    public function testEnvArguments(): void
+    {
+        putenv('DDD_TEST_INT=42');
+        putenv('DDD_TEST_BOOL=yes');
+        try {
+            $create = fn (string $env): mixed => $this->createContainer(
+                '<instance class="' . self::NS . 'WithDefaults"><argument name="env">' . $env . '</argument></instance>'
+            )->create(WithDefaults::class)->env;
+
+            $this->assertSame(42, $create('<env name="DDD_TEST_INT" type="int"/>'));
+            $this->assertSame('42', $create('<env name="DDD_TEST_INT"/>'));
+            $this->assertTrue($create('<env name="DDD_TEST_BOOL" type="bool"/>'));
+            $this->assertSame(1.5, $create('<env name="DDD_TEST_MISSING" type="float" default="1.5"/>'));
+            $this->assertSame('fallback', $create('<env name="DDD_TEST_MISSING" default="fallback"/>'));
+
+            foreach (['<env name="DDD_TEST_MISSING"/>' => 'is not set', '<env name="DDD_TEST_BOOL" type="int"/>' => 'must be an integer'] as $env => $message) {
+                try {
+                    $create($env);
+                    $this->fail($env);
+                } catch (\InvalidArgumentException $e) {
+                    $this->assertStringContainsString($message, $e->getMessage());
+                }
+            }
+        } finally {
+            putenv('DDD_TEST_INT');
+            putenv('DDD_TEST_BOOL');
+        }
     }
 
     private function createContainer(string $di = ''): Container

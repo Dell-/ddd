@@ -15,6 +15,7 @@ class ArrayType extends AbstractType
     /**
      * @return array<array-key, mixed>
      */
+    #[\Override]
     public function convert(array $node): array
     {
         $result = [];
