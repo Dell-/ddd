@@ -1,34 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeConverterInterface;
 use Core\Di\Config\Xml\Converter;
 
 /**
- * Class ArrayType
+ * <array><item name="key"><string>value</string></item>...</array>
+ * Items without a name get numeric keys.
  */
-class ArrayType extends AbstractType implements TypeConverterInterface
+class ArrayType extends AbstractType
 {
     /**
-     * @param array $node
-     * @return mixed
+     * @return array<array-key, mixed>
      */
-    public function convert(array $node)
+    public function convert(array $node): array
     {
         $result = [];
-        foreach ($node['item'] as $item) {
-            if (isset($item[Converter::ATTRIBUTES]['name'])) {
-                $name = $item[Converter::ATTRIBUTES]['name'];
-                unset($item[Converter::ATTRIBUTES]);
-                $type = key($item);
-                $item = reset($item);
-                $item = reset($item);
-                $result[$name] = $this->typeFactory->create($type)->convert($item);
+        foreach ($node['item'] ?? [] as $item) {
+            $value = $this->typeFactory->convertValue($item);
+            $name = $item[Converter::ATTRIBUTES]['name'] ?? null;
+            if ($name === null) {
+                $result[] = $value;
             } else {
-                $type = key($item);
-                $item = reset($item);
-                $item = reset($item);
-                $result[] = $this->typeFactory->create($type)->convert($item);
+                $result[$name] = $value;
             }
         }
 

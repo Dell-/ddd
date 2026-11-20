@@ -1,45 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Helper;
 
-/**
- * Class StringHelper
- */
 class StringHelper
 {
-    const HASH_VER = 'v-0.0.0.1';
+    public const HASH_VER = 'v-0.0.0.1';
 
     /**
-     * Generate a CRC32 hash for the input string
-     *
-     * @param string $string
-     * @return string
+     * Short (non-cryptographic) hash of the string.
      */
-    public static function hash($string)
+    public static function hash(string $string): string
     {
         return sprintf('%x', crc32($string . self::HASH_VER));
     }
 
     /**
-     * Returns the number of bytes in the given string
-     *
-     * @param string $string
-     * @return int
+     * Length of the string in bytes.
      */
-    public static function byteLength($string)
+    public static function byteLength(string $string): int
     {
-        return mb_strlen($string, '8bit');
+        return strlen($string);
     }
 
     /**
-     * Returns the portion of string specified by the start and length parameters
-     *
-     * @param string $string
-     * @param int $start
-     * @param int $length
-     * @return string
+     * Substring counted in bytes.
      */
-    public static function byteSubstr($string, $start, $length = null)
+    public static function byteSubstr(string $string, int $start, ?int $length = null): string
     {
-        return mb_substr($string, $start, $length === null ? mb_strlen($string, '8bit') : $length, '8bit');
+        return substr($string, $start, $length);
     }
 }

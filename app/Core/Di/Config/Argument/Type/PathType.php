@@ -1,25 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeConverterInterface;
 use Core\Di\Config\Xml\Converter;
 
 /**
- * Class StringType
+ * <path base="CONSTANT">relative/path</path> => value of CONSTANT + "/relative/path".
  */
-class PathType extends AbstractType implements TypeConverterInterface
+class PathType extends AbstractType
 {
-    /**
-     * @param array $node
-     * @return string
-     */
-    public function convert(array $node)
+    public function convert(array $node): string
     {
-        $const = $node[Converter::ATTRIBUTES]['base'];
+        $const = $node[Converter::ATTRIBUTES]['base'] ?? '';
         if (!defined($const)) {
-            throw new \InvalidArgumentException('The "' . $const .  '" constant does not exists.');
+            throw new \InvalidArgumentException('The "' . $const . '" constant does not exist.');
         }
 
-        return constant($const) . '/' . trim($node[Converter::VALUE], DS);
+        return rtrim((string) constant($const), '/\\') . DS . trim($this->value($node), '/\\');
     }
 }

@@ -2,9 +2,29 @@
 <di xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Core/Di/etc/di.xsd">
     <interface name="Core\Di\ContainerInterface" class="Core\Di\Container"/>
     <interface name="Core\Service\ServiceInterface" class="Application\Service"/>
+    <interface name="Core\Filesystem\Directory\FactoryInterface" class="Core\Filesystem\Directory\Factory"/>
+    <interface name="Core\Filesystem\File\ReaderInterface" class="Core\Filesystem\File\Reader"/>
     <interface name="Psr\Log\LoggerInterface" class="Monolog\Logger"/>
     <instance class="Core\Di\Container" shared="true"/>
+    <instance class="Core\Route\Config" shared="true">
+        <argument name="reader">
+            <object class="Core\Config\Xml\Reader">
+                <argument name="directory">
+                    <path base="BP">Application/etc</path>
+                </argument>
+                <argument name="pattern">
+                    <string>#routes\.xml$#</string>
+                </argument>
+            </object>
+        </argument>
+        <argument name="converter">
+            <object class="Core\Route\Config\Xml\Converter"/>
+        </argument>
+    </instance>
     <instance class="Monolog\Logger" shared="true">
+        <argument name="name">
+            <string>app</string>
+        </argument>
         <callback method="pushHandler">
             <argument name="handler">
                 <object class="Monolog\Handler\RotatingFileHandler">

@@ -1,16 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Application;
 
-/**
- * Class ServiceLayer
- */
 class ServiceLayer
 {
     /**
-     * @param array $list
+     * @param array<array-key, mixed> $list
      */
-    public function __construct(array $list = [])
+    public function __construct(private readonly array $list = [])
     {
-        $this->list = $list;
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function getList(): array
+    {
+        return $this->list;
     }
 }

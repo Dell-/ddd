@@ -1,91 +1,82 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Helper;
 
-/**
- * Class FilesystemHelper
- */
 class FilesystemHelper
 {
     /**
-     * Normalizes a file/directory path
-     *
-     * @param string $path
-     * @param string $ds
-     * @return string
+     * Normalizes a path: unifies separators, removes "." and resolves "..".
      */
-    public static function normalizePath($path, $ds = DS)
+    public static function normalizePath(string $path, string $ds = DIRECTORY_SEPARATOR): string
     {
         $path = rtrim(strtr($path, '/\\', $ds . $ds), $ds);
-        if (strpos($ds . $path, "{$ds}.") === false && strpos($path, "{$ds}{$ds}") === false) {
+        if (!str_contains($ds . $path, "{$ds}.") && !str_contains($path, "{$ds}{$ds}")) {
             return $path;
         }
+
         $parts = [];
         foreach (explode($ds, $path) as $part) {
-            if ($part === '..' && !empty($parts) && end($parts) !== '..') {
+            if ($part === '..' && $parts !== [] && end($parts) !== '..') {
                 array_pop($parts);
-            } else if ($part === '.' || $part === '' && !empty($parts)) {
+            } elseif ($part === '.' || ($part === '' && $parts !== [])) {
                 continue;
             } else {
                 $parts[] = $part;
             }
         }
+
         $path = implode($ds, $parts);
+
         return $path === '' ? '.' : $path;
     }
 
-    /**
-     * Creates a new directory
-     *
-     * @param string $path
-     * @param int $mode
-     * @param bool $recursive
-     * @return bool
-     */
-    public static function createDirectory($path, $mode = 0775, $recursive = true)
+    public static function createDirectory(string $path, int $mode = 0775, bool $recursive = true): bool
     {
         if (is_dir($path)) {
             return true;
         }
+
         $parentDir = dirname($path);
         if ($recursive && !is_dir($parentDir)) {
             static::createDirectory($parentDir, $mode, true);
         }
-        $result = mkdir($path, $mode);
-        chmod($path, $mode);
 
-        return $result;
+        if (!mkdir($path, $mode) && !is_dir($path)) {
+            return false;
+        }
+
+        return chmod($path, $mode);
     }
 
-    /**
-     * Copies a whole directory as another one
-     *
-     * @param string $src
-     * @param string $dst
-     * @throws \Exception
-     */
-    public static function copyDirectory($src, $dst)
+    public static function copyDirectory(string $src, string $dst): void
     {
-        if (!is_dir($dst)) {
-            static::createDirectory($dst, 0775, true);
+        if (!is_dir($dst) && !static::createDirectory($dst)) {
+            throw new \RuntimeException('Unable to create directory: ' . $dst);
         }
 
         $handle = opendir($src);
         if ($handle === false) {
-            throw new \Exception('Unable to open directory: ' . $src);
+            throw new \RuntimeException('Unable to open directory: ' . $src);
         }
 
-        while (($file = readdir($handle)) !== false) {
-            if ($file === '.' || $file === '..') {
-                continue;
+        try {
+            while (($file = readdir($handle)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+
+                $from = $src . DIRECTORY_SEPARATOR . $file;
+                $to = $dst . DIRECTORY_SEPARATOR . $file;
+                if (is_file($from)) {
+                    copy($from, $to);
+                } else {
+                    static::copyDirectory($from, $to);
+                }
             }
-            $from = $src . DS . $file;
-            $to = $dst . DS . $file;
-            if (is_file($from)) {
-                copy($from, $to);
-            } else {
-                static::copyDirectory($from, $to);
-            }
+        } finally {
+            closedir($handle);
         }
-        closedir($handle);
     }
 }

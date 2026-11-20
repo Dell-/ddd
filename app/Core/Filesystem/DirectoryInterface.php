@@ -1,71 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
-/**
- * Interface DirectoryInterface
- */
 interface DirectoryInterface
 {
-    /**
-     * Returns true if the directory is exists, otherwise false
-     *
-     * @return bool
-     */
-    public function isExists();
+    public function isExists(): bool;
 
-    /**
-     * Returns true if the directory is readable, otherwise false
-     *
-     * @return bool
-     */
-    public function isReadable();
+    public function isReadable(): bool;
 
-    /**
-     * Returns true if the directory is writable, otherwise false
-     *
-     * @return bool
-     */
-    public function isWritable();
+    public function isWritable(): bool;
 
-    /**
-     * Returns the size of the directory, in bytes
-     *
-     * @return int
-     */
-    public function getSize();
+    public function getSize(): int|false;
 
-    /**
-     * Returns the path and directory name of current directory
-     *
-     * @return string
-     */
-    public function getPathname();
+    public function getPathname(): string;
 
-    /**
-     * Returns the path to the file, omitting the directory name and any trailing slash
-     *
-     * @return string
-     */
-    public function getPath();
+    public function getPath(): string;
 
-    /**
-     * Returns the permissions of the directory, as a decimal integer
-     *
-     * @return int
-     */
-    public function getPerms();
+    public function getPerms(): int|false;
 
-    /**
-     * The directory owner of the directory, in numerical format
-     *
-     * @return int
-     */
-    public function getOwner();
+    public function getOwner(): int|false;
 
-    /**
-     * Returns the group id of the current directory in numerical format
-     *
-     * @return int
-     */
-    public function getGroup();
+    public function getGroup(): int|false;
 }

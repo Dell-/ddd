@@ -1,11 +1,26 @@
 {
-    "name": "ddd",
+    "name": "dell/ddd",
+    "description": "Lightweight PHP framework core: XML configured DI container, routing, request handling",
+    "type": "project",
     "keywords": ["project"],
     "license": "MIT",
-    "minimum-stability": "dev",
     "require": {
-        "php": ">=7.0",
-        "monolog/monolog": "~1.21"
+        "php": ">=8.4",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "monolog/monolog": "^3.9"
     },
-    "require-dev": {}
+    "autoload": {
+        "psr-4": {
+            "Core\\": "app/Core/",
+            "Application\\": "app/Application/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.0"
+        }
+    }
 }

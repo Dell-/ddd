@@ -1,139 +1,90 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di;
 
 /**
- * Class Container
+ * Reflection based dependency injection container configured by Config.
  */
 class Container implements ContainerInterface
 {
     /**
-     * Shared instances of classes
+     * Shared instances keyed by class name.
      *
-     * @var array
+     * @var array<string, object>
      */
-    private $shared = [];
+    private array $shared = [];
 
-    /**
-     * Container configuration
-     *
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * Constructor
-     *
-     * @param Config $config
-     */
-    public function __construct(Config $config)
+    public function __construct(private readonly Config $config)
     {
-        $this->config = $config;
-        $this->shared[$this->getClassName(get_class($this))] = $this;
+        $this->shared[static::class] = $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function get($className)
+    public function get(string $className): object
     {
-        $className = $this->getClassName($className);
+        $className = $this->resolveClassName($className);
 
-        if ($this->config->hasInstance($className)) {
-            $className = $this->config->getInstance($className)->getClass();
-        }
-
-        if (isset($this->shared[$className])) {
-            return $this->shared[$className];
-        }
-
-        $this->shared[$className] = $this->create($className);
-
-        return $this->shared[$className];
+        return $this->shared[$className] ??= $this->create($className);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function create($className, array $arguments = [])
+    public function create(string $className, array $arguments = []): object
     {
-        $className = $this->getClassName($className);
+        $className = $this->normalize($className);
 
-        if ($this->config->hasInstance($className)) {
-            $instanceClass = $this->config->getInstance($className);
-            $object = $this->createInstance(
-                new \ReflectionClass($instanceClass->getClass()),
-                array_merge($this->compileObjectArguments($instanceClass->getArguments()), $arguments)
-            );
-
-            foreach ($instanceClass->getCallbacks() as $callback) {
-                $this->callMethod(
-                    $object,
-                    $callback['method'],
-                    $this->compileObjectArguments($callback['arguments'])
-                );
-            }
-
-            if ($instanceClass->isShared()) {
-                $this->shared[$className] = $object;
-            }
-
-            return $object;
+        $instanceClass = $this->config->getInstance($className);
+        if ($instanceClass === null) {
+            // Not configured: the object is not shared
+            return $this->createInstance($className, $arguments);
         }
 
-        // Default - Object is not shared
-        return $this->createInstance(new \ReflectionClass($className), $arguments);
+        $object = $this->createInstance(
+            $instanceClass->getClass(),
+            array_merge($this->compileArguments($instanceClass->getArguments()), $arguments)
+        );
+
+        foreach ($instanceClass->getCallbacks() as $callback) {
+            $this->callMethod($object, $callback['method'], $this->compileArguments($callback['arguments']));
+        }
+
+        if ($instanceClass->isShared()) {
+            $this->shared[$instanceClass->getClass()] = $object;
+        }
+
+        return $object;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function callMethod($object, $methodName, array $arguments = [])
+    public function callMethod(object $object, string $methodName, array $arguments = []): mixed
     {
-        if (!is_object($object)) {
-            throw new \InvalidArgumentException('$object argument must be Object type.');
-        }
-
         $classReflection = new \ReflectionClass($object);
         if (!$classReflection->hasMethod($methodName)) {
-            throw new \InvalidArgumentException(
-                get_class($object) . '::' . $methodName . '() method does not exists.'
-            );
+            throw new \InvalidArgumentException($object::class . '::' . $methodName . '() method does not exist.');
         }
 
         $method = $classReflection->getMethod($methodName);
         if (!$method->isPublic()) {
-            throw new \InvalidArgumentException(
-                get_class($object) . '::' . $methodName . '() method must be public.'
-            );
+            throw new \InvalidArgumentException($object::class . '::' . $methodName . '() method must be public.');
         }
 
-        $arguments = $this->prepareArguments(
-            $method->getParameters(),
-            $arguments
-        );
-
-        return $object->$methodName(...array_values($arguments));
+        return $method->invokeArgs($object, $this->prepareArguments($method->getParameters(), $arguments));
     }
 
     /**
-     * Compile the object
+     * Turns configured object arguments (InstanceClass) into real objects, recursively.
      *
-     * @param array $arguments
-     * @return array
+     * @param array<array-key, mixed> $arguments
+     * @return array<array-key, mixed>
      */
-    private function compileObjectArguments(array $arguments)
+    private function compileArguments(array $arguments): array
     {
         foreach ($arguments as &$argument) {
             if ($argument instanceof InstanceClass) {
                 $argument = $this->createInstance(
-                    new \ReflectionClass($argument->getClass()),
-                    $argument->getArguments()
+                    $argument->getClass(),
+                    $this->compileArguments($argument->getArguments())
                 );
-                continue;
-            }
-
-            if (is_array($argument)) {
-                $argument = $this->compileObjectArguments($argument);
+            } elseif (is_array($argument)) {
+                $argument = $this->compileArguments($argument);
             }
         }
         unset($argument);
@@ -142,67 +93,87 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Create object instance
-     *
-     * @param \ReflectionClass $classReflection
-     * @param array $arguments
-     * @return mixed
+     * @param array<string, mixed> $arguments
      */
-    private function createInstance(\ReflectionClass $classReflection, array $arguments = [])
+    private function createInstance(string $className, array $arguments = []): object
     {
-        $class = $classReflection->getName();
-        if ($classReflection->hasMethod('__construct')) {
-            $method = $classReflection->getMethod('__construct');
-            $arguments = $this->prepareArguments($method->getParameters(), $arguments);
+        if (!class_exists($className)) {
+            throw new \InvalidArgumentException(
+                sprintf('Cannot instantiate "%s": class does not exist or no preference is configured.', $className)
+            );
         }
 
-        return new $class(...array_values($arguments));
+        $classReflection = new \ReflectionClass($className);
+        if (!$classReflection->isInstantiable()) {
+            throw new \InvalidArgumentException(sprintf('Class "%s" is not instantiable.', $className));
+        }
+
+        $constructor = $classReflection->getConstructor();
+        if ($constructor === null) {
+            return $classReflection->newInstance();
+        }
+
+        return $classReflection->newInstanceArgs($this->prepareArguments($constructor->getParameters(), $arguments));
     }
 
     /**
-     * Prepare ReflectionParameter array
+     * Builds the positional argument list: explicit arguments first, then defaults,
+     * then objects resolved from the container by their declared class type.
      *
-     * @param \ReflectionParameter[] $objectArguments
-     * @param array $externalArguments
-     * @return array
+     * @param \ReflectionParameter[] $parameters
+     * @param array<string, mixed> $arguments
+     * @return list<mixed>
      */
-    private function prepareArguments(array $objectArguments, array $externalArguments = [])
+    private function prepareArguments(array $parameters, array $arguments = []): array
     {
-        $creationArguments = [];
-        foreach ($objectArguments as $argument) {
-            $key = $argument->getName();
-            if (isset($externalArguments[$key])) {
-                $creationArguments[$key] = $externalArguments[$key];
+        $result = [];
+        foreach ($parameters as $parameter) {
+            $name = $parameter->getName();
+
+            if (array_key_exists($name, $arguments)) {
+                $result[] = $arguments[$name];
                 continue;
             }
-            $isDefaultValue = $argument->isDefaultValueAvailable();
-            $defaultValue = $isDefaultValue ? $argument->getDefaultValue() : null;
 
-            $classReflection = $argument->getClass();
-            if ($classReflection !== null && $isDefaultValue === false) {
-                $value = $this->get($classReflection->getName());
-            } else {
-                $value = $defaultValue;
+            if ($parameter->isDefaultValueAvailable()) {
+                $result[] = $parameter->getDefaultValue();
+                continue;
             }
-            $creationArguments[$key] = $value;
+
+            $type = $parameter->getType();
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                $result[] = $this->get($type->getName());
+                continue;
+            }
+
+            if ($parameter->allowsNull()) {
+                $result[] = null;
+                continue;
+            }
+
+            throw new \InvalidArgumentException(sprintf(
+                'Cannot resolve argument "$%s" of %s::%s().',
+                $name,
+                $parameter->getDeclaringClass()?->getName() ?? '',
+                $parameter->getDeclaringFunction()->getName()
+            ));
         }
 
-        return $creationArguments;
+        return $result;
     }
 
     /**
-     * Check the class name
-     *
-     * @param string $className
-     * @return string
-     * @throws \Exception
+     * Maps an interface or class name to the class that is really instantiated.
      */
-    private function getClassName($className)
+    private function resolveClassName(string $className): string
     {
-        if (!is_string($className)) {
-            throw new \Exception('Wrong type class name.');
-        }
+        $className = $this->normalize($className);
 
+        return $this->config->getInstance($className)?->getClass() ?? $className;
+    }
+
+    private function normalize(string $className): string
+    {
         return trim($className, '\\');
     }
 }

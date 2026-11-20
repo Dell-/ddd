@@ -1,22 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Directory;
 
 use Core\Filesystem\Directory;
 use Core\Filesystem\DirectoryInterface;
 
-/**
- * Class Factory
- */
-class Factory implements FactoryInteface
+class Factory implements FactoryInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function create($name)
+    public function create(string $name): DirectoryInterface
     {
         $directory = new \SplFileInfo($name);
         if (!$directory->isDir()) {
-            throw new \InvalidArgumentException('You must specify the directory name.');
+            throw new \InvalidArgumentException(sprintf('"%s" is not a directory.', $name));
         }
 
         return new Directory($directory);

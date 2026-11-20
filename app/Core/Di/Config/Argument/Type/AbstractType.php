@@ -1,25 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\Config\Argument\TypeFactory;
+use Core\Di\Config\Argument\TypeConverterInterface;
+use Core\Di\Config\Argument\TypeFactoryInterface;
+use Core\Di\Config\Xml\Converter;
 
-/**
- * Class AbstractType
- */
-abstract class AbstractType
+abstract class AbstractType implements TypeConverterInterface
 {
-    /**
-     * @var TypeFactory
-     */
-    protected $typeFactory;
+    public function __construct(protected readonly TypeFactoryInterface $typeFactory)
+    {
+    }
 
     /**
-     * Constructor
-     *
-     * @param TypeFactory $typeFactory
+     * @param array<string, mixed> $node
      */
-    public function __construct(TypeFactory $typeFactory)
+    protected function value(array $node): string
     {
-        $this->typeFactory = $typeFactory;
+        return trim((string) ($node[Converter::VALUE] ?? ''));
     }
 }

@@ -1,100 +1,65 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di;
 
 /**
- * Class InstanceClass
+ * Definition of how an object is created: class, arguments, sharing and callbacks.
  */
 class InstanceClass
 {
     /**
-     * @var string
+     * @var list<array{method: string, arguments: array<string, mixed>}>
      */
-    private $id;
+    private array $callbacks = [];
 
     /**
-     * @var string
+     * @param array<string, mixed> $arguments
      */
-    private $class;
-
-    /**
-     * @var array
-     */
-    private $arguments = [];
-
-    /**
-     * @var bool
-     */
-    private $shared;
-
-    /**
-     * @var array
-     */
-    private $callbacks = [];
-
-    /**
-     * Constructor
-     *
-     * @param string $id
-     * @param string $class
-     * @param array $arguments
-     * @param bool $shared
-     */
-    public function __construct($id, $class, array $arguments = [], $shared = false)
-    {
-        $this->id = $id;
-        $this->class = $class;
-        $this->arguments = $arguments;
-        $this->shared = $shared;
+    public function __construct(
+        private readonly string $id,
+        private readonly string $class,
+        private readonly array $arguments = [],
+        private readonly bool $shared = false,
+    ) {
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getClass()
+    public function getClass(): string
     {
         return $this->class;
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getArguments()
+    public function getArguments(): array
     {
         return $this->arguments;
     }
 
-    /**
-     * @return bool
-     */
-    public function isShared()
+    public function isShared(): bool
     {
         return $this->shared;
     }
 
     /**
-     * @param string $method
-     * @param array $arguments
+     * @param array<string, mixed> $arguments
      */
-    public function addCallback($method, array $arguments = [])
+    public function addCallback(string $method, array $arguments = []): void
     {
-        $this->callbacks[] = [
-            'method' => $method,
-            'arguments' => $arguments
-        ];
+        $this->callbacks[] = ['method' => $method, 'arguments' => $arguments];
     }
 
     /**
-     * @return array
+     * @return list<array{method: string, arguments: array<string, mixed>}>
      */
-    public function getCallbacks()
+    public function getCallbacks(): array
     {
         return $this->callbacks;
     }

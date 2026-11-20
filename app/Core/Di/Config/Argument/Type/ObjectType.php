@@ -1,34 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument\Type;
 
-use Core\Di\InstanceClass;
-use Core\Di\Config\Argument\TypeConverterInterface;
 use Core\Di\Config\Xml\Converter;
+use Core\Di\InstanceClass;
 
 /**
- * Class ObjectType
+ * <object class="Some\Class"><argument .../></object> => InstanceClass, created by the container.
  */
-class ObjectType extends AbstractType implements TypeConverterInterface
+class ObjectType extends AbstractType
 {
-    /**
-     * @param array $node
-     * @return mixed
-     */
-    public function convert(array $node)
+    public function convert(array $node): InstanceClass
     {
-        $instanceArguments = [];
-        $arguments = isset($node['argument']) ? $node['argument'] : [];
         $class = trim($node[Converter::ATTRIBUTES]['class'], '\\');
-        foreach ($arguments as $argument) {
-            $attributes = $argument[Converter::ATTRIBUTES];
-            unset($argument[Converter::ATTRIBUTES]);
-            $type = key($argument);
-            $argument = reset($argument);
-            $argument = reset($argument);
-            $instanceArguments[$attributes['name']] = $this->typeFactory->create($type)
-                ->convert($argument);
+
+        $arguments = [];
+        foreach ($node['argument'] ?? [] as $argument) {
+            $arguments[$argument[Converter::ATTRIBUTES]['name']] = $this->typeFactory->convertValue($argument);
         }
 
-        return new InstanceClass($class, $class, $instanceArguments);
+        return new InstanceClass($class, $class, $arguments);
     }
 }

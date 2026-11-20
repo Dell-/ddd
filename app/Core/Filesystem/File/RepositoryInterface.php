@@ -1,25 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\File;
 
-use Core\Filesystem\FileInterface;
 use Core\Filesystem\DirectoryInterface;
+use Core\Filesystem\FileInterface;
 
-/**
- * Interface RepositoryInterface
- */
 interface RepositoryInterface
 {
-    /**
-     * @param FileInterface $file
-     * @param DirectoryInterface $context
-     * @return bool
-     */
-    public function save(FileInterface $file, DirectoryInterface $context);
+    public function save(FileInterface $file, DirectoryInterface $context): void;
 
-    /**
-     * @param FileInterface $file
-     * @param DirectoryInterface $context
-     * @return bool
-     */
-    public function delete(FileInterface $file, DirectoryInterface $context);
+    public function delete(FileInterface $file, DirectoryInterface $context): void;
 }

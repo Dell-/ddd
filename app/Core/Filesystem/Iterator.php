@@ -1,21 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
 /**
- * Class Iterator
+ * Iterates over the entries of a directory (keys are file names, values are \SplFileInfo).
  */
 class Iterator implements \SeekableIterator
 {
-    /**
-     * @var \FilesystemIterator
-     */
-    private $iterator;
+    private \FilesystemIterator $iterator;
 
-    /**
-     * Iterator constructor.
-     *
-     * @param DirectoryInterface $directory
-     */
     public function __construct(DirectoryInterface $directory)
     {
         $this->iterator = new \FilesystemIterator(
@@ -26,59 +21,38 @@ class Iterator implements \SeekableIterator
         );
     }
 
-    /**
-     * Cloned encapsulated data
-     */
     public function __clone()
     {
         $this->iterator = clone $this->iterator;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function current()
+    public function current(): \SplFileInfo
     {
         return $this->iterator->current();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function next()
+    public function next(): void
     {
         $this->iterator->next();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function key()
+    public function key(): string
     {
         return $this->iterator->key();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function valid()
+    public function valid(): bool
     {
         return $this->iterator->valid();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
+    public function rewind(): void
     {
         $this->iterator->rewind();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function seek($position)
+    public function seek(int $offset): void
     {
-        $this->iterator->seek($position);
+        $this->iterator->seek($offset);
     }
 }

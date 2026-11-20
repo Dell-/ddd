@@ -1,33 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Route;
 
-use Core\Config\ReaderInterface;
 use Core\Config\ConverterInterface;
+use Core\Config\ReaderInterface;
 
 /**
- * Class Config
+ * Routes from routes.xml: method + name => action class.
  */
 class Config
 {
     /**
-     * @var ReaderInterface
+     * @var array<string, array<string, string>>|null
      */
-    private $reader;
+    private ?array $routes = null;
+
+    public function __construct(
+        private readonly ReaderInterface $reader,
+        private readonly ConverterInterface $converter,
+    ) {
+    }
 
     /**
-     * @var ConverterInterface
+     * Returns the action class of the route or null if there is no such route.
      */
-    private $converter;
-
-    /**
-     * Constructor
-     *
-     * @param ReaderInterface $reader
-     * @param ConverterInterface $converter
-     */
-    public function __construct(ReaderInterface $reader, ConverterInterface $converter)
+    public function match(string $method, string $name): ?string
     {
-        $this->reader = $reader;
-        $this->converter = $converter;
+        $this->routes ??= $this->converter->convert($this->reader->read());
+
+        return $this->routes[strtoupper($method)][$name] ?? null;
     }
 }

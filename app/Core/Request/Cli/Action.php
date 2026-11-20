@@ -1,14 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Request\Cli;
 
-use Core\Request\Cli;
+use Core\Request\RequestInterface;
+use Core\Service\ActionInterface;
 
 /**
- * Class Action
+ * Base class of console actions.
  */
-class Action
+abstract class Action implements ActionInterface
 {
-    public function __construct(Cli $request)
+    public function __construct(protected readonly RequestInterface $request)
     {
     }
 }

@@ -1,21 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Service;
 
-use Core\Di\Container;
+use Core\Di\ContainerInterface;
 
-/**
- * Class LayerBuilder
- */
 class LayerBuilder
 {
-    /**
-     * Create layer
-     *
-     * @param Container $container
-     * @return Layer
-     */
-    protected function create(Container $container)
+    public function create(ContainerInterface $container): Layer
     {
-        return $container->create('Core\Service\Layer', ['container' => $container]);
+        $layer = $container->create(Layer::class, ['container' => $container]);
+        \assert($layer instanceof Layer);
+
+        return $layer;
     }
 }

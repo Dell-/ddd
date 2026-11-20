@@ -1,18 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Directory;
 
 use Core\Filesystem\DirectoryInterface;
-use Core\Filesystem\FilterInterface;
 
-/**
- * Interface ReaderInterface
- */
 interface ReaderInterface
 {
     /**
-     * @param DirectoryInterface $directory
-     * @param FilterInterface $filter
+     * @param (callable(DirectoryInterface): bool)|null $filter
      * @return DirectoryInterface[]
      */
-    public function read(DirectoryInterface $directory, FilterInterface $filter = null);
+    public function read(DirectoryInterface $directory, ?callable $filter = null): array;
 }

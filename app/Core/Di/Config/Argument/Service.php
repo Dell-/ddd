@@ -1,45 +1,32 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di\Config\Argument;
 
 use Core\Di\Config\Xml\Converter;
 
 /**
- * Class Service
+ * Converts <argument> nodes into values.
  */
 class Service
 {
-    /**
-     * @var TypeFactoryInterface
-     */
-    private $typeFactory;
-
-    /**
-     * Constructor
-     *
-     * @param TypeFactoryInterface $typeFactory
-     */
-    public function __construct(TypeFactoryInterface $typeFactory)
+    public function __construct(private readonly TypeFactoryInterface $typeFactory)
     {
-        $this->typeFactory = $typeFactory;
     }
 
     /**
-     * @param array $arguments
-     * @return array
+     * @param list<array<string, mixed>> $arguments
+     * @return array<string, mixed>
      */
-    public function createArguments(array $arguments)
+    public function createArguments(array $arguments): array
     {
-        $instanceArguments = [];
+        $result = [];
         foreach ($arguments as $argument) {
-            $attributes = $argument[Converter::ATTRIBUTES];
-            unset($argument[Converter::ATTRIBUTES]);
-            $type = key($argument);
-            $argument = reset($argument);
-            $argument = reset($argument);
-            $instanceArguments[$attributes['name']] = $this->typeFactory->create($type)
-                ->convert($argument);
+            $name = $argument[Converter::ATTRIBUTES]['name'];
+            $result[$name] = $this->typeFactory->convertValue($argument);
         }
 
-        return $instanceArguments;
+        return $result;
     }
 }

@@ -1,18 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem\Content\Xml\Dom;
 
-/**
- * Class XPathFactory
- */
 class XPathFactory
 {
-    /**
-     * Create new object DOMXPath for DOM document
-     *
-     * @param \DOMDocument $document
-     * @return \DOMXPath
-     */
-    public function create(\DOMDocument $document)
+    public function create(\DOMDocument $document): \DOMXPath
     {
         return new \DOMXPath($document);
     }

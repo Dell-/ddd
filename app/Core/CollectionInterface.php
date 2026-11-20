@@ -1,46 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core;
 
 /**
- * Interface CollectionInterface
+ * @extends \IteratorAggregate<array-key, mixed>
+ * @extends \ArrayAccess<array-key, mixed>
  */
 interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countable
 {
-    /**
-     * Return the variable value
-     *
-     * @param string $key
-     * @param mixed $defaultValue
-     * @return mixed
-     */
-    public function get($key, $defaultValue = null);
+    public function get(string|int $key, mixed $defaultValue = null): mixed;
+
+    public function set(string|int $key, mixed $value): void;
 
     /**
-     * Set a variable value
-     *
-     * @param string $key
-     * @param mixed $value
+     * Removes the value and returns it.
      */
-    public function set($key, $value);
+    public function remove(string|int $key): mixed;
 
-    /**
-     * Removes a session variable
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public function remove($key);
+    public function removeAll(): void;
 
-    /**
-     * Removes all variables value
-     */
-    public function removeAll();
-
-    /**
-     * Is exists key in array
-     *
-     * @param mixed $key
-     * @return bool
-     */
-    public function has($key);
+    public function has(string|int $key): bool;
 }

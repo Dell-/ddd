@@ -1,35 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Di;
 
 /**
- * Interface ContainerInterface
+ * Dependency injection container.
  */
 interface ContainerInterface
 {
     /**
-     * Get instantiate an object of class
-     *
-     * @param string $className
-     * @return mixed
+     * Returns a shared instance of the class (creates it on the first call).
      */
-    public function get($className);
+    public function get(string $className): object;
 
     /**
-     * Create new object
+     * Creates a new instance of the class.
      *
-     * @param string $className
-     * @param array $arguments
-     * @return mixed
+     * @param array<string, mixed> $arguments Constructor arguments keyed by parameter name
      */
-    public function create($className, array $arguments = []);
+    public function create(string $className, array $arguments = []): object;
 
     /**
-     * Call object method in container
+     * Calls a public method of the object, resolving missing arguments from the container.
      *
-     * @param Object $object
-     * @param string $methodName
-     * @param array $arguments
-     * @return mixed
+     * @param array<string, mixed> $arguments Method arguments keyed by parameter name
      */
-    public function callMethod($object, $methodName, array $arguments = []);
+    public function callMethod(object $object, string $methodName, array $arguments = []): mixed;
 }

@@ -1,25 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Request\Http;
 
-use Core\Request\Http;
+use Core\Request\RequestInterface;
+use Core\Service\ActionInterface;
 
 /**
- * Class Action
+ * Base class of HTTP actions.
  */
-class Action
+abstract class Action implements ActionInterface
 {
-    /**
-     * @var Http
-     */
-    private $request;
-
-    /**
-     * Action constructor.
-     *
-     * @param Http $request
-     */
-    public function __construct(Http $request)
+    public function __construct(protected readonly RequestInterface $request)
     {
-        $this->request = $request;
     }
 }

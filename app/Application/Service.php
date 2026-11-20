@@ -1,69 +1,53 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Application;
 
-use Core\Di\ContainerInterface;
 use Core\Request\HandlerFactory;
+use Core\Request\RequestException;
 use Core\Request\RequestFactory;
 use Core\Service\ServiceInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class Service
- */
 final class Service implements ServiceInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var RequestFactory
-     */
-    private $requestFactory;
-
-    /**
-     * @var HandlerFactory
-     */
-    private $handlerFactory;
-
-    /**
-     * Constructor
-     *
-     * @param ContainerInterface $container
-     * @param LoggerInterface $logger
-     * @param RequestFactory $requestFactory
-     * @param HandlerFactory $handlerFactory
-     */
     public function __construct(
-        ContainerInterface $container,
-        LoggerInterface $logger,
-        RequestFactory $requestFactory,
-        HandlerFactory $handlerFactory
+        private readonly LoggerInterface $logger,
+        private readonly RequestFactory $requestFactory,
+        private readonly HandlerFactory $handlerFactory,
     ) {
-        $this->container = $container;
-        $this->logger = $logger;
-        $this->requestFactory = $requestFactory;
-        $this->handlerFactory = $handlerFactory;
     }
 
-    /**
-     * Run service
-     */
-    public function run()
+    public function run(): int
     {
-        $this->handlerFactory->create()
-            ->handle($this->requestFactory->create());
+        $isCli = PHP_SAPI === 'cli';
+        $exitCode = 0;
+
+        try {
+            $output = $this->handlerFactory->create()->handle($this->requestFactory->create());
+        } catch (RequestException $e) {
+            $this->logger->notice($e->getMessage(), ['exception' => $e]);
+            $exitCode = 1;
+            $output = $e->getMessage();
+            if (!$isCli) {
+                $status = $e->getCode();
+                http_response_code($status >= 400 && $status < 600 ? $status : 400);
+            }
+        }
 
         $this->logger->debug(sprintf(
             'time: %f sec; memory: %d kb',
             microtime(true) - BEGIN_TIME,
-            memory_get_usage() / 1024
-        ), ['callable' => __CLASS__ . '::' . __METHOD__]);
+            intdiv(memory_get_usage(), 1024)
+        ), ['callable' => __METHOD__]);
+
+        if ($isCli) {
+            fwrite($exitCode === 0 ? STDOUT : STDERR, $output === '' ? '' : rtrim($output, "\n") . "\n");
+        } else {
+            echo $output;
+        }
+
+        return $exitCode;
     }
 }

@@ -1,97 +1,59 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core\Filesystem;
 
-/**
- * Class Directory
- */
 class Directory implements DirectoryInterface
 {
-    /**
-     * @var \SplFileInfo
-     */
-    private $directory;
-
-    /**
-     * Constructor
-     *
-     * @param \SplFileInfo $directory
-     */
-    public function __construct(\SplFileInfo $directory)
+    public function __construct(private readonly \SplFileInfo $directory)
     {
         if (!$directory->isDir()) {
-            throw new \InvalidArgumentException('This object must indicate to a directory.');
+            throw new \InvalidArgumentException('This object must point to a directory.');
         }
-        $this->directory = $directory;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isExists()
+    public function isExists(): bool
     {
         return file_exists($this->getPathname());
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isReadable()
+    public function isReadable(): bool
     {
         return $this->directory->isReadable();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function isWritable()
+    public function isWritable(): bool
     {
         return $this->directory->isWritable();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getSize()
+    public function getSize(): int|false
     {
         return $this->directory->getSize();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPathname()
+    public function getPathname(): string
     {
         return $this->directory->getPathname();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->directory->getPath();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPerms()
+    public function getPerms(): int|false
     {
         return $this->directory->getPerms();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getOwner()
+    public function getOwner(): int|false
     {
         return $this->directory->getOwner();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getGroup()
+    public function getGroup(): int|false
     {
         return $this->directory->getGroup();
     }
