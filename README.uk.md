@@ -274,3 +274,7 @@ $response = $kernel->handle(Requests::make('POST', '/items', ['Content-Type' => 
 | Архітектура | [Життєвий цикл запиту](docs/uk/architecture/lifecycle.md) · [Впровадження залежностей](docs/uk/architecture/dependency-injection.md) · [Конфігурація](docs/uk/architecture/configuration.md) |
 | HTTP | [Маршрутизація](docs/uk/http/routing.md) · [Actions](docs/uk/http/actions.md) · [Запити](docs/uk/http/requests.md) · [Відповіді](docs/uk/http/responses.md) · [Узгодження вмісту](docs/uk/http/content-negotiation.md) · [Помилки](docs/uk/http/errors.md) · [Файли](docs/uk/http/files.md) · [Middleware](docs/uk/http/middleware.md) · [Безпека](docs/uk/http/security.md) |
 | Ще | [Консоль](docs/uk/console.md) · [Тестування](docs/uk/testing.md) · [Стандарти](docs/uk/reference/standards.md) · [Коди стану](docs/uk/reference/status-codes.md) · [Схеми конфігурації](docs/uk/reference/configuration-schemas.md) |
+
+## Ліцензія
+
+MIT — див. [LICENSE](LICENSE).

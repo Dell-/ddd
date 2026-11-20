@@ -274,3 +274,7 @@ $response = $kernel->handle(Requests::make('POST', '/items', ['Content-Type' => 
 | Architecture | [Request lifecycle](docs/en/architecture/lifecycle.md) · [Dependency injection](docs/en/architecture/dependency-injection.md) · [Configuration](docs/en/architecture/configuration.md) |
 | HTTP | [Routing](docs/en/http/routing.md) · [Actions](docs/en/http/actions.md) · [Requests](docs/en/http/requests.md) · [Responses](docs/en/http/responses.md) · [Content negotiation](docs/en/http/content-negotiation.md) · [Errors](docs/en/http/errors.md) · [Files](docs/en/http/files.md) · [Middleware](docs/en/http/middleware.md) · [Security](docs/en/http/security.md) |
 | More | [Console](docs/en/console.md) · [Testing](docs/en/testing.md) · [Standards](docs/en/reference/standards.md) · [Status codes](docs/en/reference/status-codes.md) · [Configuration schemas](docs/en/reference/configuration-schemas.md) |
+
+## License
+
+MIT — see [LICENSE](LICENSE).
